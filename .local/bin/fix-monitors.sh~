@@ -1,0 +1,24 @@
+#!/bin/bash
+
+LEFT='HDMI-0'
+RIGHT='eDP-1-1'
+CENTER='DP-0'
+
+LOCATION="$1"
+
+if [ $LOCATION="home" ]; then
+    xrandr --output $CENTER --auto
+    xrandr --output $LEFT --left-of $CENTER --auto
+    xrandr --output $RIGHT --right-of $CENTER --auto
+fi
+
+if [ $LOCATION="work" ]; then
+    xrandr --output $LEFT --right-of $RIGHT --auto
+fi
+
+if [ $LOCATION="" ]; then
+    echo "enter arg 'work' or 'home'"
+fi
+
+xset s off
+xset -dpms

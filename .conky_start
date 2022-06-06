@@ -1,0 +1,3 @@
+#!/bin/bash
+conky -o
+#conky -o -c ~/.conkyrc1
