@@ -1,8 +1,8 @@
 #!/bin/bash
 ARG="$1"
 CMD='sudo nordvpn'
-LOCATION='estonia'
-
+#LOCATION='estonia'
+LOCATION='cyprus'
 disconnect(){
     $CMD set killswitch false
     $CMD disconnect

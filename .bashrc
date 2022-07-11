@@ -126,7 +126,7 @@ fi
 . "$HOME/.cargo/env"
 
 parse_git_branch() {
- git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\o033[0m  \o033[36m \1\o033[0m /'
+ git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\o033[0m ⟪ \o033[36m \1\o033[0m ⟫/'
 }
 
 # PS1='╔═\[\033[36m\]【\[\033[31m\]\u\[\033[36m\]】\[\033[36m\]╠ \[\033[32m\]\w \[\033[31m\]@$(parse_git_branch)\[\033[36m\]╣\[\033[0m\]\n╚═§ '
