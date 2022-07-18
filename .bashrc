@@ -2,7 +2,7 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-PATH=$PATH:~/.cargo/bin:~/scripts:/usr/local/cuda-11.6/bin:/usr/local/texlive/2021/bin/x86_64-linux
+PATH=$PATH:~/scripts:/usr/local/cuda-11.7/bin:/usr/local/texlive/2021/bin/x86_64-linux
 
 # escape octal notation passed to sed
 E='\033['
@@ -142,7 +142,7 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-. "$HOME/.cargo/env"
+#. "$HOME/.cargo/env"
 
 #symbol colors
 SHEV_COLOR="${CYAN}"
@@ -165,15 +165,15 @@ parse_git_branch() {
     if [[ -n $branch_name ]]
     then
 	BRANCH=${BRANCH}$branch_name${RESET}
-	git_mode=$(git status 2>/dev/null | sed -n '/You\ are/p' | sed -r 's/.*(bisecting|merging).*/\U\1/')
+	git_mode=$(git status 2>/dev/null | sed -n '/You\ are/p' | sed -r 's/.*(bisecting|merging|rebasing|editing).*/\U\1/')
 	if [[ -n $git_mode ]]
 	then
 	    MODE="|$MODE$git_mode${RESET}"
 	fi
-	echo "$LEFT_SHEV$BRANCH$MODE$RIGHT_SHEV" 2> /dev/null
+	echo "$LEFT_SHEV$BRANCH$MODE$RIGHT_SHEV${RESET}" 2> /dev/null
     else
 	echo "" 2> /dev/null
     fi
 }
 
-PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)${RESET}\n╚═ '
+PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)\n╚═ '
