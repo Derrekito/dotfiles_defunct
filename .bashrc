@@ -4,6 +4,25 @@
 
 PATH=$PATH:~/.cargo/bin:~/scripts:/usr/local/cuda-11.6/bin:/usr/local/texlive/2021/bin/x86_64-linux
 
+# escape octal notation passed to sed
+E='\033['
+
+#bash begin char style/color escape
+
+
+#colors
+GRAY=$(echo -e "${E}37m")
+RED=$(echo -e "${E}31m")
+GREEN=$(echo -e "${E}32m")
+BROWN=$(echo -e "${E}33m")
+BLUE=$(echo -e "${E}34m")
+PURPLE=$(echo -e "${E}35m")
+CYAN=$(echo -e "${E}36m")
+WHITE=$(echo -e "${E}1;37m")
+
+# char style/cmds
+BOLD=$(echo -e "${E}1m")
+RESET=$(echo -e "${E}0m")
 
 xrdb -merge ~/.Xresources
 if [ -x /usr/bin/dircolors ]; then
@@ -125,12 +144,36 @@ if ! shopt -oq posix; then
 fi
 . "$HOME/.cargo/env"
 
+#symbol colors
+SHEV_COLOR="${CYAN}"
+BRANCH_COLOR="${BLUE}"
+MODE_COLOR="${RED}"
+DIR_COLOR="${GREEN}"
+
+#symbols
+LEFT_SHEV="${SHEV_COLOR}${BOLD}⟪${RESET}"
+RIGHT_SHEV="${SHEV_COLOR}${BOLD}⟫${RESET}"
+BRANCH="${BRANCH_COLOR}"
+MODE="${MODE_COLOR}${BOLD}"
+GIT_INFO=""
+
+#parse_git_branch() {
+# git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\o033[0m ⟪ \o033[36m \1\o033[0m ⟫/'
+#}
 parse_git_branch() {
- git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\o033[0m ⟪ \o033[36m \1\o033[0m ⟫/'
+    branch_name=$(git branch 2> /dev/null| sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    if [[ -n $branch_name ]]
+    then
+	BRANCH=${BRANCH}$branch_name${RESET}
+	git_mode=$(git status 2>/dev/null | sed -n '/You\ are/p' | sed -r 's/.*(bisecting|merging).*/\U\1/')
+	if [[ -n $git_mode ]]
+	then
+	    MODE="|$MODE$git_mode${RESET}"
+	fi
+	echo "$LEFT_SHEV$BRANCH$MODE$RIGHT_SHEV" 2> /dev/null
+    else
+	echo "" 2> /dev/null
+    fi
 }
 
-# PS1='╔═\[\033[36m\]【\[\033[31m\]\u\[\033[36m\]】\[\033[36m\]╠ \[\033[32m\]\w \[\033[31m\]@$(parse_git_branch)\[\033[36m\]╣\[\033[0m\]\n╚═§ '
-#PS1='╔═\[\033[36m\]【\[\033[31m\]\u\[\033[36m\]】\[\033[36m\]╠ \[\033[32m\]\w \[\033[31m\] \[\033[36m\] \[\033[32m\]$(parse_git_branch)\[\033[36m\]╣\[\033[0m\]\n╚═ '
-
-#PS1='╔═╣\[\033[32m\]\w/\[\033[0m\]╠═\[\033[36m\]$(parse_git_branch)\[\033[0m\]\n╚═ '
-PS1='╔═╣\[\033[32m\]\w/\[\033[0m\]\[\033[36m\]$(parse_git_branch)\[\033[0m\]\n╚═ '
+PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)${RESET}\n╚═ '
