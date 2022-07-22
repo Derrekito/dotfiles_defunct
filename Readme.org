@@ -1,0 +1,13 @@
+* Derrekito's dotfiles
+** Usage
+To install a specfic set of files run:
+
+#+begin_src :language bash 
+make install <target>
+#+end_src
+
+To install all dot files, run:
+
+#+begin_src :language bash
+make install
+#+end_src
