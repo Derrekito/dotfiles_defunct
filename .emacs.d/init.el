@@ -5,27 +5,13 @@
 (defvar efs/default-font-size 120)
 (defvar efs/default-variable-font-size 120)
 
-;; Make frame transparency overridable
-(defvar efs/frame-transparency '(90 . 90))
-
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
-(defun efs/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                     (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'efs/display-startup-time)
-
 ;; Initialize package sources
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                         ("org" . "http://orgmode.org/elpa/")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -37,26 +23,6 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
-
-(use-package auto-package-update
-  :custom
-  (auto-package-update-interval 7)
-  (auto-package-update-prompt-before-update t)
-  (auto-package-update-hide-results t)
-  :config
-  (auto-package-update-maybe)
-  (auto-package-update-at-time "09:00"))
-
-;; NOTE: If you want to move everything out of the ~/.emacs.d folder
-;; reliably, set `user-emacs-directory` before loading no-littering!
-;(setq user-emacs-directory "~/.cache/emacs")
-
-(use-package no-littering)
-
-;; no-littering doesn't set this by default so we must place
-;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 (setq inhibit-startup-message t)
 
@@ -73,17 +39,11 @@
 (column-number-mode)
 (global-display-line-numbers-mode t)
 
-;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-(add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
-(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
                 term-mode-hook
                 shell-mode-hook
-                treemacs-mode-hook
+	              treemacs-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
@@ -99,17 +59,15 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (use-package general
-  :after evil
   :config
-  (general-create-definer efs/leader-keys
+  (general-create-definer rune/leader-keys
     :keymaps '(normal insert visual emacs)
     :prefix "SPC"
     :global-prefix "C-SPC")
 
-  (efs/leader-keys
+  (rune/leader-keys
     "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")
-    "fde" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/Emacs.org")))))
+    "tt" '(counsel-load-theme :which-key "choose theme")))
 
 (use-package evil
   :init
@@ -134,11 +92,11 @@
   :config
   (evil-collection-init))
 
-(use-package command-log-mode
-  :commands command-log-mode)
+(use-package command-log-mode)
 
 (use-package doom-themes
   :init (load-theme 'doom-tomorrow-night t))
+ ;; :init (load-theme 'doom-dracula t))
 
 (use-package all-the-icons)
 
@@ -147,10 +105,9 @@
   :custom ((doom-modeline-height 15)))
 
 (use-package which-key
-  :defer 0
+  :init (which-key-mode)
   :diminish which-key-mode
   :config
-  (which-key-mode)
   (setq which-key-idle-delay 1))
 
 (use-package ivy
@@ -172,7 +129,6 @@
   (ivy-mode 1))
 
 (use-package ivy-rich
-  :after ivy
   :init
   (ivy-rich-mode 1))
 
@@ -180,22 +136,10 @@
   :bind (("C-M-j" . 'counsel-switch-buffer)
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history))
-  :custom
-  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
   :config
   (counsel-mode 1))
 
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  ;(prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
-
 (use-package helpful
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
   :custom
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable)
@@ -205,8 +149,7 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-(use-package hydra
-  :defer t)
+(use-package hydra)
 
 (defhydra hydra-text-scale (:timeout 4)
   "scale text"
@@ -214,7 +157,7 @@
   ("k" text-scale-decrease "out")
   ("f" nil "finished" :exit t))
 
-(efs/leader-keys
+(rune/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
 
 (defun efs/org-font-setup ()
@@ -235,17 +178,13 @@
     (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (defun efs/org-mode-setup ()
   (org-indent-mode)
@@ -253,8 +192,7 @@
   (visual-line-mode 1))
 
 (use-package org
-  :pin org
-  :commands (org-capture org-agenda)
+  :ensure org-contrib
   :hook (org-mode . efs/org-mode-setup)
   :config
   (setq org-ellipsis " ▾")
@@ -377,6 +315,7 @@
   (efs/org-font-setup))
 
 (use-package org-bullets
+  :after org
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -389,31 +328,43 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-      (python . t)))
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '((emacs-lisp . t)
+    (python . t)))
 
-  (push '("conf-unix" . conf-unix) org-src-lang-modes))
+(push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-(with-eval-after-load 'org
-  ;; This is needed as of Org 9.2
-  (require 'org-tempo)
+;; This is needed as of Org 9.2
+(require 'org-tempo)
 
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python")))
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
-  (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name "~/Projects/Code/emacs-from-scratch/Emacs.org"))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+(require 'ox-latex)
+(require 'ox-beamer)
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-listings 'minted
+      org-export-latex-minted-options
+      '(("frame" "lines")
+        ("fontsize" "\\scriptsize")
+        ("framesep" "2mm")
+        ("bgcolor" "LightGray")
+        ("linenos" "")
+        ("breaklines" "true")
+        ("breakanywhere" "true")))
+(setq org-latex-pdf-process '("latexmk -shell-escape -f -pdf %f"))
 
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -435,8 +386,7 @@
 (use-package lsp-treemacs
   :after lsp)
 
-(use-package lsp-ivy
-  :after lsp)
+(use-package lsp-ivy)
 
 (use-package dap-mode
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
@@ -444,7 +394,7 @@
   ;; (lsp-enable-dap-auto-configure nil)
   ;; :config
   ;; (dap-ui-mode 1)
-  :commands dap-debug
+
   :config
   ;; Set up Node debugging
   (require 'dap-node)
@@ -461,22 +411,6 @@
   :hook (typescript-mode . lsp-deferred)
   :config
   (setq typescript-indent-level 2))
-
-(use-package python-mode
-  :ensure t
-  :hook (python-mode . lsp-deferred)
-  :custom
-  ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  ;; (python-shell-interpreter "python3")
-  ;; (dap-python-executable "python3")
-  (dap-python-debugger 'debugpy)
-  :config
-  (require 'dap-python))
-
-(use-package pyvenv
-  :after python-mode
-  :config
-  (pyvenv-mode 1))
 
 (use-package company
   :after lsp-mode
@@ -505,19 +439,19 @@
   (setq projectile-switch-project-action #'projectile-dired))
 
 (use-package counsel-projectile
-  :after projectile
   :config (counsel-projectile-mode))
 
-(use-package magit
-  :commands magit-status
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+;;  (use-package magit
+;;    :custom
+;;    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-;; NOTE: Make sure to configure a GitHub token before using this package!
-;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-(use-package forge
-  :after magit)
+;;  (use-package evil-magit
+;;    :after magit)
+
+  ;; NOTE: Make sure to configure a GitHub token before using this package!
+  ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+;;  (use-package forge)
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
@@ -526,7 +460,6 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package term
-  :commands term
   :config
   (setq explicit-shell-file-name "bash") ;; Change this to zsh, etc
   ;;(setq explicit-zsh-args '())         ;; Use 'explicit-<shell>-args for shell-specific args
@@ -565,8 +498,7 @@
         eshell-hist-ignoredups t
         eshell-scroll-to-bottom-on-input t))
 
-(use-package eshell-git-prompt
-  :after eshell)
+(use-package eshell-git-prompt)
 
 (use-package eshell
   :hook (eshell-first-time-mode . efs/configure-eshell)
@@ -588,14 +520,12 @@
     "h" 'dired-single-up-directory
     "l" 'dired-single-buffer))
 
-(use-package dired-single
-  :commands (dired dired-jump))
+(use-package dired-single)
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package dired-open
-  :commands (dired dired-jump)
   :config
   ;; Doesn't work as expected!
   ;;(add-to-list 'dired-open-functions #'dired-open-xdg t)
@@ -608,18 +538,78 @@
   (evil-collection-define-key 'normal 'dired-mode-map
     "H" 'dired-hide-dotfiles-mode))
 
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1000 1000))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(desktop-environment which-key vterm visual-fill-column use-package typescript-mode rainbow-delimiters pyvenv python-mode org-roam org-bullets no-littering lsp-ui lsp-ivy ivy-prescient helpful general forge exwm ewal-doom-themes evil-nerd-commenter evil-collection eterm-256color eshell-git-prompt doom-modeline doom dired-single dired-open dired-hide-dotfiles dap-mode counsel-projectile company-box command-log-mode auto-package-update all-the-icons-ivy-rich all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(defun efs/exwm-update-class ()
+  (exwm-workspace-rename-buffer exwm-class-name))
+
+(use-package exwm
+  :config
+  ;; Set the default number of workspaces
+  (setq exwm-workspace-number 5)
+
+  ;; When window "class" updates, use it to set the buffer name
+  (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+
+  ;; Rebind CapsLock to Ctrl
+  (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
+
+  ;; Set the screen resolution (update this to be the correct resolution for your screen!)
+  (require 'exwm-randr)
+  (exwm-randr-enable)
+  ;; (start-process-shell-command "xrandr" nil "xrandr --output Virtual-1 --primary --mode 2048x1152 --pos 0x0 --rotate normal")
+
+  ;; Load the system tray before exwm-init
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable)
+
+  ;; These keys should always pass through to Emacs
+  (setq exwm-input-prefix-keys
+    '(?\C-x
+      ?\C-u
+      ?\C-h
+      ?\M-x
+      ?\M-`
+      ?\M-&
+      ?\M-:
+      ?\C-\M-j  ;; Buffer list
+      ?\C-\ ))  ;; Ctrl+Space
+
+  ;; Ctrl+Q will enable the next key to be sent directly
+  (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+  ;; Set up global key bindings.  These always work, no matter the input state!
+  ;; Keep in mind that changing this list after EXWM initializes has no effect.
+  (setq exwm-input-global-keys
+        `(
+          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+          ([?\s-r] . exwm-reset)
+
+          ;; Move between windows
+          ([s-left] . windmove-left)
+          ([s-right] . windmove-right)
+          ([s-up] . windmove-up)
+          ([s-down] . windmove-down)
+
+
+          ([s-S-right] . windmove-swap-states-right)
+          ([s-S-left] . windmove-swap-states-left)
+          ([s-S-up] . windmove-swap-states-up)
+          ([s-S-down] . windmove-swap-states-down)
+          ;; Launch applications via shell command
+          ([?\s-&] . (lambda (command)
+                       (interactive (list (read-shell-command "$ ")))
+                       (start-process-shell-command command nil command)))
+
+
+          ;; Switch workspace
+          ([?\s-w] . exwm-workspace-switch)
+          ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+
+          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+          ,@(mapcar (lambda (i)
+                      `(,(kbd (format "s-%d" i)) .
+                        (lambda ()
+                          (interactive)
+                          (exwm-workspace-switch-create ,i))))
+                    (number-sequence 0 9))))
+
+  (exwm-enable))
