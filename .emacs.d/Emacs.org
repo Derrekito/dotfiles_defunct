@@ -3,6 +3,8 @@
 
 * Welcome!
 
+Use `org-babel-tangle` to output Emacs.org to init.el
+
 This is the configuration we've been building in the *Emacs From Scratch* series, now written as an Org Mode document.  This file generates [[file:init.el][init.el]] which can be loaded by Emacs at startup.
 
 *NOTE:* If you run into any issues while using this configuration, please [[https://github.com/daviwil/emacs-from-scratch/issues/new][file an issue]] or send me an email at =david at systemcrafters.cc=.
@@ -488,7 +490,12 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
   (org-babel-do-load-languages
     'org-babel-load-languages
     '((emacs-lisp . t)
-      (python . t)))
+      (python . t)
+      (C . t)
+      (awk . t)
+      (shell . t)
+      (gnuplot .t )
+      (sed . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
@@ -738,20 +745,20 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
 [[https://magit.vc/][Magit]] is the best Git interface I've ever used.  Common Git operations are easy to execute quickly using Magit's command panel system.
 
 #+begin_src emacs-lisp
-
-;;  (use-package magit
-;;    :custom
-;;    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-;;  (use-package evil-magit
-;;    :after magit)
+  (use-package magit
+    :commands magit-status
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
   ;; NOTE: Make sure to configure a GitHub token before using this package!
   ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
   ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-;;  (use-package forge)
+;;  (use-package forge
+;;    :after magit)
 
 #+end_src
+
+#+RESULTS:
 
 ** Commenting
 
@@ -1014,81 +1021,82 @@ We use the excellent [[https://github.com/ch11ng/exwm][EXWM]] module as the basi
 
 #+begin_src emacs-lisp
 
-  (defun efs/exwm-update-class ()
-    (exwm-workspace-rename-buffer exwm-class-name))
+   (defun efs/exwm-update-class ()
+     (exwm-workspace-rename-buffer exwm-class-name))
 
-  (use-package exwm
-    :config
-    ;; Set the default number of workspaces
-    (setq exwm-workspace-number 5)
+   (use-package exwm
+     :config
+     ;; Set the default number of workspaces
+     (setq exwm-workspace-number 5)
 
-    ;; When window "class" updates, use it to set the buffer name
-    (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+     ;; When window "class" updates, use it to set the buffer name
+     (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
 
-    ;; Rebind CapsLock to Ctrl
-    (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
+     ;; Rebind CapsLock to Ctrl
+     (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
 
-    ;; Set the screen resolution (update this to be the correct resolution for your screen!)
-    (require 'exwm-randr)
-    (exwm-randr-enable)
-    ;; (start-process-shell-command "xrandr" nil "xrandr --output Virtual-1 --primary --mode 2048x1152 --pos 0x0 --rotate normal")
+     ;; Set the screen resolution (update this to be the correct resolution for your screen!)
+     (require 'exwm-randr)
+     (exwm-randr-enable)
+     ;; (start-process-shell-command "xrandr" nil "xrandr --output Virtual-1 --primary --mode 2048x1152 --pos 0x0 --rotate normal")
 
-    ;; Load the system tray before exwm-init
-    (require 'exwm-systemtray)
-    (exwm-systemtray-enable)
+     ;; Load the system tray before exwm-init
+     (require 'exwm-systemtray)
+     (exwm-systemtray-enable)
 
-    ;; These keys should always pass through to Emacs
-    (setq exwm-input-prefix-keys
-      '(?\C-x
-        ?\C-u
-        ?\C-h
-        ?\M-x
-        ?\M-`
-        ?\M-&
-        ?\M-:
-        ?\C-\M-j  ;; Buffer list
-        ?\C-\ ))  ;; Ctrl+Space
+     ;; These keys should always pass through to Emacs
+     (setq exwm-input-prefix-keys
+       '(?\C-x
+         ?\C-u
+         ?\C-h
+         ?\M-x
+         ?\M-`
+         ?\M-&
+         ?\M-:
+         ?\C-\M-j  ;; Buffer list
+         ?\C-\ ))  ;; Ctrl+Space
 
-    ;; Ctrl+Q will enable the next key to be sent directly
-    (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+     ;; Ctrl+Q will enable the next key to be sent directly
+     (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
-    ;; Set up global key bindings.  These always work, no matter the input state!
-    ;; Keep in mind that changing this list after EXWM initializes has no effect.
-    (setq exwm-input-global-keys
-          `(
-            ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
-            ([?\s-r] . exwm-reset)
+     ;; Set up global key bindings.  These always work, no matter the input state!
+     ;; Keep in mind that changing this list after EXWM initializes has no effect.
+     (setq exwm-input-global-keys
+           `(
+             ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+             ([?\s-r] . exwm-reset)
 
-            ;; Move between windows
-            ([s-left] . windmove-left)
-            ([s-right] . windmove-right)
-            ([s-up] . windmove-up)
-            ([s-down] . windmove-down)
-
-
-            ([s-S-right] . windmove-swap-states-right)
-            ([s-S-left] . windmove-swap-states-left)
-            ([s-S-up] . windmove-swap-states-up)
-            ([s-S-down] . windmove-swap-states-down)
-            ;; Launch applications via shell command
-            ([?\s-&] . (lambda (command)
-                         (interactive (list (read-shell-command "$ ")))
-                         (start-process-shell-command command nil command)))
+             ;; Move between windows
+             ([s-left] . windmove-left)
+             ([s-right] . windmove-right)
+             ([s-up] . windmove-up)
+             ([s-down] . windmove-down)
 
 
-            ;; Switch workspace
-            ([?\s-w] . exwm-workspace-switch)
-            ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+             ([s-S-right] . windmove-swap-states-right)
+             ([s-S-left] . windmove-swap-states-left)
+             ([s-S-up] . windmove-swap-states-up)
+             ([s-S-down] . windmove-swap-states-down)
 
-            ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-            ,@(mapcar (lambda (i)
-                        `(,(kbd (format "s-%d" i)) .
-                          (lambda ()
-                            (interactive)
-                            (exwm-workspace-switch-create ,i))))
-                      (number-sequence 0 9))))
+             ;; Launch applications via shell command
+             ([?\s-&] . (lambda (command)
+                          (interactive (list (read-shell-command "$ ")))
+                          (start-process-shell-command command nil command)))
 
-    (exwm-enable))
+
+             ;; Switch workspace
+             ([?\s-w] . exwm-workspace-switch)
+             ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+
+             ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+             ,@(mapcar (lambda (i)
+                         `(,(kbd (format "s-%d" i)) .
+                           (lambda ()
+                             (interactive)
+                             (exwm-workspace-switch-create ,i))))
+                       (number-sequence 0 9))))
+
+     (exwm-enable))
 
 #+end_src
 

@@ -331,7 +331,12 @@
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
-    (python . t)))
+    (python . t)
+    (C . t)
+    (awk . t)
+    (shell . t)
+    (gnuplot .t )
+    (sed . t)))
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
@@ -353,18 +358,28 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (require 'ox-latex)
-(require 'ox-beamer)
-(add-to-list 'org-latex-packages-alist '("" "minted"))
-(setq org-latex-listings 'minted
-      org-export-latex-minted-options
-      '(("frame" "lines")
-        ("fontsize" "\\scriptsize")
-        ("framesep" "2mm")
-        ("bgcolor" "LightGray")
-        ("linenos" "")
-        ("breaklines" "true")
-        ("breakanywhere" "true")))
-(setq org-latex-pdf-process '("latexmk -shell-escape -f -pdf %f"))
+    (require 'ox-beamer)
+    (setq org-latex-to-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
+    (setq org-latex-listings 'minted
+        org-latex-packages-alist '(("" "minted"))
+        org-export-latex-minted-options
+        '(("frame" "lines")
+          ("fontsize" "\\scriptsize")
+          ("framesep" "2mm")
+          ("bgcolor" "LightGray")
+          ("linenos" "")
+          ("breaklines" "true")
+          ("breakanywhere" "true")))
+  ;;      org-latex-pdf-process
+  ;;      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+  ;;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;;  (setq org-latex-minted-options '(("breaklines" "true")
+  ;;                                 ("breakanywhere" "true")))
+;;    (setq org-export-latex-listings 'minted
+;;        )
+
+    ;;(add-to-list 'org-latex-packages-alist '("" "listings"))
+    ;;(add-to-list 'org-latex-packages-alist '("" "color"))
 
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -441,17 +456,16 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
-;;  (use-package magit
-;;    :custom
-;;    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-;;  (use-package evil-magit
-;;    :after magit)
+(use-package magit
+    :commands magit-status
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
   ;; NOTE: Make sure to configure a GitHub token before using this package!
   ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
   ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-;;  (use-package forge)
+;;  (use-package forge
+;;    :after magit)
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
@@ -594,6 +608,7 @@
           ([s-S-left] . windmove-swap-states-left)
           ([s-S-up] . windmove-swap-states-up)
           ([s-S-down] . windmove-swap-states-down)
+
           ;; Launch applications via shell command
           ([?\s-&] . (lambda (command)
                        (interactive (list (read-shell-command "$ ")))
