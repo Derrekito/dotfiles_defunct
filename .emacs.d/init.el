@@ -590,6 +590,7 @@
   ;; Ctrl+Q will enable the next key to be sent directly
   (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
+  (windmove-swap-states-default-keybindings)
   ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
   (setq exwm-input-global-keys
@@ -602,12 +603,11 @@
           ([s-right] . windmove-right)
           ([s-up] . windmove-up)
           ([s-down] . windmove-down)
-
-
-          ([s-S-right] . windmove-swap-states-right)
-          ([s-S-left] . windmove-swap-states-left)
-          ([s-S-up] . windmove-swap-states-up)
-          ([s-S-down] . windmove-swap-states-down)
+          ;; Move Windows
+          ;([s-S-right] . windmove-swap-states-right)
+          ;([s-S-left] . windmove-swap-states-left)
+          ;([s-S-up] . windmove-swap-states-up)
+          ;([s-S-down] . windmove-swap-states-down)
 
           ;; Launch applications via shell command
           ([?\s-&] . (lambda (command)
