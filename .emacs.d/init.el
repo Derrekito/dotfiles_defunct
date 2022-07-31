@@ -23,6 +23,32 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
+(use-package counsel)
+(use-package jupyter)
+
+;; helper function for changing OS platform keywords to system-type strings
+(defun platform-keyword-to-string (platform-keyword)
+  (cond
+   ((eq platform-keyword 'windows) "windows-nt")
+   ((eq platform-keyword 'cygwin) "cygwin")
+   ((eq platform-keyword 'osx) "darwin")
+   ((eq platform-keyword 'linux) "gnu/linux")))
+
+;; Define a macro that runs on elisp expression only on a particular platform
+(defmacro on-platform-do (&rest platform-expressions)
+  `(cond
+    ,@(mapcar
+       (lambda (platform-expr)
+         (let ((keyword (nth 0 platform-expr))
+               (expr (nth 1 platform-expr)))
+           `(,(if (listp keyword)
+                  `(or
+                    ,@(mapcar
+                       (lambda (kw) `(string-equal system-type ,(platform-keyword-to-string kw)))
+                       keyword))
+                `(string-equal system-type ,(platform-keyword-to-string keyword)))
+             ,expr)))
+       platform-expressions)))
 
 (setq inhibit-startup-message t)
 
@@ -446,15 +472,18 @@
   :after lsp-mode
   :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
+              ("<tab>" . company-complete-selection))
+  (:map lsp-mode-map
+        ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
+
+(use-package company-org-block)
+(add-hook 'after-init-hook 'global-company-mode)
 
 (use-package projectile
   :diminish projectile-mode
@@ -566,6 +595,13 @@
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "H" 'dired-hide-dotfiles-mode))
+
+;; Help dired function on MacOS
+(on-platform-do
+ (osx (setq insert-directory-program "gls" dired-use-ls-dired t))
+ (osx (setq dired-listing-switches "-al --group-directories-first"))
+ ;;        (linux ())
+ )
 
 (defun efs/exwm-update-class ()
   (exwm-workspace-rename-buffer exwm-class-name))
