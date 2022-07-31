@@ -202,9 +202,7 @@
   (setq org-log-into-drawer t)
 
   (setq org-agenda-files
-        '("~/Projects/Code/emacs-from-scratch/OrgFiles/Tasks.org"
-          "~/Projects/Code/emacs-from-scratch/OrgFiles/Habits.org"
-          "~/Projects/Code/emacs-from-scratch/OrgFiles/Birthdays.org"))
+        '("~/OrgFiles/Tasks.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -328,17 +326,44 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-(org-babel-do-load-languages
-  'org-babel-load-languages
-  '((emacs-lisp . t)
-    (python . t)
-    (C . t)
-    (awk . t)
-    (shell . t)
-    (gnuplot .t )
-    (sed . t)))
+; language support
+  (org-babel-do-load-languages
+    'org-babel-load-languages
+    '((emacs-lisp . t)
+      (python . t)
+      (C . t)
+      (awk . t)
+      (shell . t)
+      (gnuplot .t )
+      (sed . t)
+      (jupyter . t)))
+
+;The minimum number of lines for block output. This fixes the colon issue.
+(setq org-babel-min-lines-for-block-output 0)
+
+; allow auto evaluation
+(setq org-confirm-babel-evaluate nil)
+
 
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
+
+;; auto eval src blocks
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "ditaa")))  ;don't ask for ditaa
+  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+
+  ;; don't insert colons into result
+  (setq org-babel-min-lines-for-block-output 0)
+
+  ;; remove example block literal in latex due to removing colons
+  (defun ndk/clean-up-latex-export-blocks (text backend info)
+    ""
+    (when (org-export-derived-backend-p backend 'latex)
+      (replace-regexp-in-string "#\\+begin_example\n" ""
+                                (replace-regexp-in-string "#\\+end_example\n" "" text))))
+
+;;  (add-to-list 'org-export-filter-export-block-functions
+;;               #'ndk/clean-up-latex-export-blocks)
 
 ;; This is needed as of Org 9.2
 (require 'org-tempo)
@@ -358,28 +383,18 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (require 'ox-latex)
-    (require 'ox-beamer)
-    (setq org-latex-to-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
-    (setq org-latex-listings 'minted
-        org-latex-packages-alist '(("" "minted"))
-        org-export-latex-minted-options
-        '(("frame" "lines")
-          ("fontsize" "\\scriptsize")
-          ("framesep" "2mm")
-          ("bgcolor" "LightGray")
-          ("linenos" "")
-          ("breaklines" "true")
-          ("breakanywhere" "true")))
-  ;;      org-latex-pdf-process
-  ;;      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-  ;;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  ;;  (setq org-latex-minted-options '(("breaklines" "true")
-  ;;                                 ("breakanywhere" "true")))
-;;    (setq org-export-latex-listings 'minted
-;;        )
-
-    ;;(add-to-list 'org-latex-packages-alist '("" "listings"))
-    ;;(add-to-list 'org-latex-packages-alist '("" "color"))
+(require 'ox-beamer)
+(setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
+(setq org-latex-listings 'minted
+    org-latex-packages-alist '(("" "minted"))
+    org-export-latex-minted-options
+    '(("frame" "lines")
+      ("fontsize" "\\scriptsize")
+      ("framesep" "2mm")
+      ("bgcolor" "LightGray")
+      ("linenos" "")
+      ("breaklines" "true")
+      ("breakanywhere" "true")))
 
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))

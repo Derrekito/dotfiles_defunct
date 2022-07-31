@@ -337,10 +337,8 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (setq org-log-into-drawer t)
 
     (setq org-agenda-files
-          '("~/Projects/Code/emacs-from-scratch/OrgFiles/Tasks.org"
-            "~/Projects/Code/emacs-from-scratch/OrgFiles/Habits.org"
-            "~/Projects/Code/emacs-from-scratch/OrgFiles/Birthdays.org"))
-
+          '("~/OrgFiles/Tasks.org"))
+    
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -487,19 +485,59 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 
 #+begin_src emacs-lisp
 
-  (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((emacs-lisp . t)
-      (python . t)
-      (C . t)
-      (awk . t)
-      (shell . t)
-      (gnuplot .t )
-      (sed . t)))
+    ; language support
+    (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+        (python . t)
+        (C . t)
+        (awk . t)
+        (shell . t)
+        (gnuplot .t )
+        (sed . t)
+        (jupyter . t)))
+
+  ;The minimum number of lines for block output. This fixes the colon issue.
+  (setq org-babel-min-lines-for-block-output 0)
+
+  ; allow auto evaluation
+  (setq org-confirm-babel-evaluate nil)
+
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
 #+end_src
+
+#+RESULTS:
+#+begin_example
+((conf-unix . conf-unix) (conf-unix . conf-unix) (conf-unix . conf-unix) (conf-unix . conf-unix) (conf-unix . conf-unix) (jupyter-python . python) (C . c) (C++ . c++) (asymptote . asy) (bash . sh) (beamer . latex) (calc . fundamental) (cpp . c++) (ditaa . artist) (dot . fundamental) (elisp . emacs-lisp) (ocaml . tuareg) (screen . shell-script) (shell . sh) (sqlite . sql))
+#+end_example
+
+** More Babel Configurations
+#+begin_src emacs-lisp
+
+  ;; auto eval src blocks
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "ditaa")))  ;don't ask for ditaa
+  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+
+  ;; don't insert colons into result
+  (setq org-babel-min-lines-for-block-output 0)
+
+  ;; remove example block literal in latex due to removing colons
+  (defun ndk/clean-up-latex-export-blocks (text backend info)
+    ""
+    (when (org-export-derived-backend-p backend 'latex)
+      (replace-regexp-in-string "#\\+begin_example\n" ""
+                                (replace-regexp-in-string "#\\+end_example\n" "" text))))
+
+;;  (add-to-list 'org-export-filter-export-block-functions
+;;               #'ndk/clean-up-latex-export-blocks)
+  
+#+end_src
+
+#+RESULTS:
+| ndk/clean-up-latex-export-blocks |
 
 ** Structure Templates
 
@@ -540,29 +578,20 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 
 #+begin_src emacs-lisp
-      (require 'ox-latex)
-      (require 'ox-beamer)
-      (setq org-latex-to-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
-      (setq org-latex-listings 'minted
-          org-latex-packages-alist '(("" "minted"))
-          org-export-latex-minted-options
-          '(("frame" "lines")
-            ("fontsize" "\\scriptsize")
-            ("framesep" "2mm")
-            ("bgcolor" "LightGray")
-            ("linenos" "")
-            ("breaklines" "true")
-            ("breakanywhere" "true")))
-    ;;      org-latex-pdf-process
-    ;;      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-    ;;        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-    ;;  (setq org-latex-minted-options '(("breaklines" "true")
-    ;;                                 ("breakanywhere" "true")))
-  ;;    (setq org-export-latex-listings 'minted
-  ;;        )
 
-      ;;(add-to-list 'org-latex-packages-alist '("" "listings"))
-      ;;(add-to-list 'org-latex-packages-alist '("" "color"))
+  (require 'ox-latex)
+  (require 'ox-beamer)
+  (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
+  (setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-export-latex-minted-options
+      '(("frame" "lines")
+        ("fontsize" "\\scriptsize")
+        ("framesep" "2mm")
+        ("bgcolor" "LightGray")
+        ("linenos" "")
+        ("breaklines" "true")
+        ("breakanywhere" "true")))
 
 #+end_src
 
