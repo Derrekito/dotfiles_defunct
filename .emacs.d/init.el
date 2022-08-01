@@ -485,6 +485,8 @@
 (use-package company-org-block)
 (add-hook 'after-init-hook 'global-company-mode)
 
+(use-package cuda-mode)
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
