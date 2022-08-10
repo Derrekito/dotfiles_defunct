@@ -2,8 +2,8 @@
 ;;       in Emacs and init.el will be generated automatically!
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar efs/default-font-size 120)
-(defvar efs/default-variable-font-size 120)
+(defvar efs/default-font-size 160)
+(defvar efs/default-variable-font-size 160)
 
 ;; Initialize package sources
 (require 'package)
@@ -53,6 +53,11 @@
 (setq inhibit-startup-message t)
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
+(defun my/disable-scroll-bars (frame)
+  (modify-frame-parameters frame
+                           '((vertical-scroll-bars . nil)
+                             (horizontal-scroll-bars . nil))))
+(add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
@@ -69,9 +74,12 @@
 (dolist (mode '(org-mode-hook
                 term-mode-hook
                 shell-mode-hook
-	              treemacs-mode-hook
+                treemacs-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+;; xterm mouse support
+(require 'mouse)
+(xterm-mouse-mode t)
 
 (set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
 
@@ -80,6 +88,8 @@
 
 ;; Set the variable pitch face
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+
+(setq default-frame-alist '((font . "Fira Code Retina")))
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
