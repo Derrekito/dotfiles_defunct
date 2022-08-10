@@ -858,6 +858,26 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 #+end_src
 
+** Code Indentation
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2)
+  (setq indent-line-function 'insert-tab)
+  (setq c-basic-offset 2) 
+  (c-set-offset 'comment-intro 0)
+
+  (setq c-default-style
+        '((java-mode . "java")
+          (awk-mode . "awk")
+          (other . "bsd")))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+((java-mode . java) (awk-mode . awk) (other . bsd))
+#+end_example
+
 * Terminals
 
 ** term-mode
@@ -1106,7 +1126,7 @@ on-platform-do
 
 We use the excellent [[https://github.com/ch11ng/exwm][EXWM]] module as the basis for our Emacs Desktop Environment.  The [[https://github.com/ch11ng/exwm/wiki][EXWM Wiki]] is a great place to find tips about how to configure everything!
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (defun efs/exwm-update-class ()
     (exwm-workspace-rename-buffer exwm-class-name))
