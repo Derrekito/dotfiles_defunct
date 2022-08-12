@@ -1,9 +1,8 @@
 #+title: Emacs From Scratch Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
-* Welcome!
+* About
 
-Use `org-babel-tangle` to output Emacs.org to init.el
 
 This is the configuration we've been building in the *Emacs From Scratch* series, now written as an Org Mode document.  This file generates [[file:init.el][init.el]] which can be loaded by Emacs at startup.
 
@@ -11,20 +10,30 @@ This is the configuration we've been building in the *Emacs From Scratch* series
 
 The following variables are used to tweak some of the configuration pieces for use in the live streams so you might need to adjust them for your local machine if you try to use this configuration directly.
 
+Use `org-babel-tangle` to output Emacs.org to init.el
+
 #+begin_src emacs-lisp
 
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
-
-;; You will most likely need to adjust this font size for your system!
-(defvar efs/default-font-size 160)
-(defvar efs/default-variable-font-size 160)
+  ;; NOTE: init.el is now generated from Emacs.org.
+  ;;       Please edit that file in Emacs and init.el
+  ;;       will be generated automatically!
 
 #+end_src
 
 * Tips for Use
 
 In this document I've added links in many places that lead you to documentation for the various packages we use.  If you're looking at this file in Emacs, you can put your cursor on a link and press =C-c C-o= or run =M-x org-open-at-point= to open the link in your web browser.
+
+* Global Font Size
+
+#+begin_src emacs-lisp
+
+  ;; You will most likely need to adjust this font size
+  ;; for your system!
+  (defvar efs/default-font-size 160)
+  (defvar efs/default-variable-font-size 160)
+  
+#+end_src
 
 * Package System Setup
 
@@ -577,13 +586,27 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
       (replace-regexp-in-string "#\\+begin_example\n" ""
                                 (replace-regexp-in-string "#\\+end_example\n" "" text))))
 
-;;  (add-to-list 'org-export-filter-export-block-functions
-;;               #'ndk/clean-up-latex-export-blocks)
-  
+  ;;  (add-to-list 'org-export-filter-export-block-functions
+  ;;               #'ndk/clean-up-latex-export-blocks)
+  (setq ieeetran-class
+        '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
+          ("\\section{\\textsc{%s}}" . "\\section*{%s}")
+          ("\\subsection{%s}" . "\\subsection*{%s}")
+          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+          ("\\paragraph{%s}" . "\\paragraph*{%s}")
+          ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (with-eval-after-load 'ox-latex
+    (add-to-list 'org-latex-classes ieeetran-class t))
+
 #+end_src
 
 #+RESULTS:
-| ndk/clean-up-latex-export-blocks |
+| beamer   | \documentclass[presentation]{beamer} | (\section{%s} . \section*{%s})          | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) |                                      |                                            |
+| article  | \documentclass[11pt]{article}        | (\section{%s} . \section*{%s})          | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) | (\paragraph{%s} . \paragraph*{%s})   | (\subparagraph{%s} . \subparagraph*{%s})   |
+| report   | \documentclass[11pt]{report}         | (\part{%s} . \part*{%s})                | (\chapter{%s} . \chapter*{%s})       | (\section{%s} . \section*{%s})             | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) |
+| book     | \documentclass[11pt]{book}           | (\part{%s} . \part*{%s})                | (\chapter{%s} . \chapter*{%s})       | (\section{%s} . \section*{%s})             | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) |
+| IEEEtran | \documentclass[11pt]{IEEEtran}       | (\section{%s} . \section*{%s})          | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) | (\paragraph{%s} . \paragraph*{%s})   | (\subparagraph{%s} . \subparagraph*{%s})   |
+| IEEEtran | \documentclass[11pt]{IEEEtran}       | (\section{	extsc{%s}} . \section*{%s}) | (\subsection{%s} . \subsection*{%s}) | (\subsubsection{%s} . \subsubsection*{%s}) | (\paragraph{%s} . \paragraph*{%s})   | (\subparagraph{%s} . \subparagraph*{%s})   |
 
 ** Structure Templates
 
@@ -882,12 +905,13 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
   (setq c-default-style
         '((java-mode . "java")
           (awk-mode . "awk")
+          (cuda-mode . "bsd")
           (other . "bsd")))
 #+end_src
 
 #+RESULTS:
 #+begin_example
-((java-mode . java) (awk-mode . awk) (other . bsd))
+((java-mode . java) (awk-mode . awk) (cuda-mode . bsd) (other . bsd))
 #+end_example
 
 * Terminals

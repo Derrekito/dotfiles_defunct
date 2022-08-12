@@ -1,7 +1,9 @@
-;; NOTE: init.el is now generated from Emacs.org.  Please edit that file
-;;       in Emacs and init.el will be generated automatically!
+;; NOTE: init.el is now generated from Emacs.org.
+;;       Please edit that file in Emacs and init.el
+;;       will be generated automatically!
 
-;; You will most likely need to adjust this font size for your system!
+;; You will most likely need to adjust this font size
+;; for your system!
 (defvar efs/default-font-size 160)
 (defvar efs/default-variable-font-size 160)
 
@@ -384,22 +386,31 @@
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
 ;; auto eval src blocks
-  (defun my-org-confirm-babel-evaluate (lang body)
-    (not (string= lang "ditaa")))  ;don't ask for ditaa
-  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+(defun my-org-confirm-babel-evaluate (lang body)
+  (not (string= lang "ditaa")))  ;don't ask for ditaa
+(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 
-  ;; don't insert colons into result
-  (setq org-babel-min-lines-for-block-output 0)
+;; don't insert colons into result
+(setq org-babel-min-lines-for-block-output 0)
 
-  ;; remove example block literal in latex due to removing colons
-  (defun ndk/clean-up-latex-export-blocks (text backend info)
-    ""
-    (when (org-export-derived-backend-p backend 'latex)
-      (replace-regexp-in-string "#\\+begin_example\n" ""
-                                (replace-regexp-in-string "#\\+end_example\n" "" text))))
+;; remove example block literal in latex due to removing colons
+(defun ndk/clean-up-latex-export-blocks (text backend info)
+  ""
+  (when (org-export-derived-backend-p backend 'latex)
+    (replace-regexp-in-string "#\\+begin_example\n" ""
+                              (replace-regexp-in-string "#\\+end_example\n" "" text))))
 
 ;;  (add-to-list 'org-export-filter-export-block-functions
 ;;               #'ndk/clean-up-latex-export-blocks)
+(setq ieeetran-class
+      '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
+        ("\\section{\\textsc{%s}}" . "\\section*{%s}")
+        ("\\subsection{%s}" . "\\subsection*{%s}")
+        ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+        ("\\paragraph{%s}" . "\\paragraph*{%s}")
+        ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes ieeetran-class t))
 
 ;; This is needed as of Org 9.2
 (require 'org-tempo)
@@ -538,6 +549,7 @@
 (setq c-default-style
       '((java-mode . "java")
         (awk-mode . "awk")
+        (cuda-mode . "bsd")
         (other . "bsd")))
 
 (use-package term
