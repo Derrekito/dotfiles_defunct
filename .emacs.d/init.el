@@ -77,7 +77,8 @@
                 term-mode-hook
                 shell-mode-hook
                 treemacs-mode-hook
-                eshell-mode-hook))
+                eshell-mode-hook
+                doc-view-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 ;; xterm mouse support
 (require 'mouse)
@@ -442,6 +443,24 @@
       ("linenos" "")
       ("breaklines" "true")
       ("breakanywhere" "true")))
+
+(add-hook 'makefile-mode-hook
+  (lambda ()
+    (setq indent-tabs-mode t)
+    (setq-default indent-tabs-mode t)
+    (setq tab-width 4)))
+(add-hook 'makefile-gmake-mode-hook
+  (lambda ()
+    (setq indent-tabs-mode t)
+    (setq-default indent-tabs-mode t)
+    (setq tab-width 4)))
+; Convert hard tabs to spaces on save
+(add-hook 'before-save-hook
+  (lambda ()
+    ; But not Makefiles
+    (if (member major-mode '(makefile-mode makefile-gmake-mode))
+      (tabify (point-min) (point-max))
+      (untabify (point-min) (point-max)))))
 
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
