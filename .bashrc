@@ -4,6 +4,9 @@
 
 PATH=$PATH:~/scripts:/usr/local/cuda-11.7/bin:/usr/local/texlive/2021/bin/x86_64-linux
 
+# set tab size to 4
+tabs -4
+
 # escape octal notation passed to sed
 E='\033['
 
@@ -162,7 +165,8 @@ GIT_INFO=""
 #}
 parse_git_branch() {
     branch_name=$(git branch 2> /dev/null| sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
-    if [[ -n $branch_name ]]
+   
+ if [[ -n $branch_name ]]
     then
 	BRANCH=${BRANCH}$branch_name${RESET}
 	git_mode=$(git status 2>/dev/null | sed -n '/You\ are/p' | sed -r 's/.*(bisecting|merging|rebasing|editing).*/\U\1/')
@@ -176,4 +180,4 @@ parse_git_branch() {
     fi
 }
 
-PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)\n╚═ '
+PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)\n╚═> '
