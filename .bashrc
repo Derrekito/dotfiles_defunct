@@ -4,6 +4,9 @@
 
 PATH=$PATH:~/scripts:/usr/local/cuda-11.7/bin:/usr/local/texlive/2021/bin/x86_64-linux
 
+#swap capslock and escape
+setxkbmap -option caps:swapescape
+
 # set tab size to 4
 tabs -4
 
