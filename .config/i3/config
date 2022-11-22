@@ -21,7 +21,8 @@ set $mod Mod4
     # CHARSET_ENCODING: Registry's character encoding scheme for this set
 
 #font  -misc-hack-medium-r-normal-*-*-*-*-*-m-*-*-*
-font pango:Hack Nerd Font 11
+#font pango:Hack Nerd Font 11
+font pango:Hack 11
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 #font pango:DejaVu Sans Mono 8
@@ -45,17 +46,17 @@ bindsym $mod+Return exec urxvt
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
+bindsym $mod+d exec dmenu_run -fn hack
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # change focus
-bindsym $mod+p focus left
+bindsym $mod+h focus left
 bindsym $mod+k focus down
-bindsym $mod+l focus up
-bindsym $mod+n focus right
+bindsym $mod+j focus up
+bindsym $mod+l focus right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -76,7 +77,7 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
-bindsym $mod+h split h
+bindsym $mod+Shift+h split h
 
 # split in vertical orientation
 bindsym $mod+v split v
@@ -152,6 +153,9 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
+bindsym $mod+Shift+t exec "emacsclient -c"
+bindsym $mod+Shift+b exec "google-chrome-stable"
+
 # screenshot
 bindsym --release $mod+x exec --no-startup-id import /tmp/latest-screenshot.png
 
@@ -187,7 +191,7 @@ focus_follows_mouse no
 # finds out, if available)
 bar {
         status_command i3status
-	font pango:Hack Nerd Font 15
+  font pango:Hack 15
 }
 
 # class                 border  backgr. text    indicator child_border
@@ -218,3 +222,10 @@ exec xset -dpms
 
 # set solid background color
 exec xsetroot -solid "#000000"
+
+exec polychromatic-tray-applet &
+exec emacs --daemon
+
+exec set -o vi
+
+exec setxkbmap -option caps:swapescape
