@@ -581,7 +581,7 @@ We use [[https://github.com/joostkremers/visual-fill-column][visual-fill-column]
 #+begin_src emacs-lisp
 
   (defun efs/org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
+    (setq visual-fill-column-width 150
           visual-fill-column-center-text t)
     (visual-fill-column-mode 1))
 
@@ -1307,27 +1307,5 @@ We use the excellent [[https://github.com/ch11ng/exwm][EXWM]] module as the basi
                       (number-sequence 0 9))))
 
     (exwm-enable))
-
-#+end_src
-
-* Applications
-
-** Some App
-
-This is an example of configuring another non-Emacs application using org-mode.  Not only do we write out the configuration at =.config/some-app/config=, we also compute the value that gets stored in this configuration from the Emacs Lisp block above it.
-
-
-#+NAME: the-value
-#+begin_src emacs-lisp :tangle no
-
-  (+ 55 100)
-
-#+end_src
-
-*NOTE*: Set the =:tangle= parameter below to =.config/some-app/config= for this to work!
-
-#+begin_src conf :tangle no :noweb yes
-
-  value=<<the-value()>>
 
 #+end_src
