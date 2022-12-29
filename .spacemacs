@@ -560,9 +560,11 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (defvar efs/default-font-size 160)
-  (defvar efs/default-variable-font-size 160)
-
+  (defvar kito/default-font-size 160)
+  (defvar kito/default-variable-font-size 160)
+  (defvar kito/default-org-block-font-size 140)
+  (defvar kito/default-org-code-font-size 120)
+  (defvar kito/default-org-table-font-size 120)
 )
 
 (defun dotspacemacs/user-load ()
@@ -585,7 +587,7 @@ dump."
 
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
-  (setq org-image-actual-width 600)
+
   (dolist (mode '(org-mode-hook
                   term-mode-hook
                   shell-mode-hook
@@ -596,17 +598,17 @@ dump."
 
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-  ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
+  ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height kito/default-font-size)
 
   ;; Set the fixed pitch face
-  ;;(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height kito/default-font-size)
 
   ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height kito/default-variable-font-size :weight 'regular)
 
   ;;(setq default-frame-alist '((font . "Fira Code Retina")))
 
-  (defun efs/org-font-setup ()
+  (defun kito/org-font-setup ()
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
@@ -624,15 +626,23 @@ dump."
       (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    ;; (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    ;; (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    ;; (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    ;; (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    ;; (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    ;; (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-block nil :font "Fira Code Retina" :height kito/default-org-block-font-size)
+    (set-face-attribute 'org-table nil :font "Fira Code Retina" :height kito/default-org-table-font-size)
+    (set-face-attribute 'org-code nil :font "Fira Code Retina" :height kito/default-org-code-font-size))
 
-  (defun efs/org-mode-visual-fill ()
+  (defun kito/org-mode-visual-fill ()
     (setq visual-fill-column-width 125
           visual-fill-column-center-text t)
     (add-hook 'visual-fill-column-mode-hook 'spacemacs/toggle-visual-line-navigation-on)
@@ -641,18 +651,24 @@ dump."
     (visual-fill-column-mode 1))
 
   (use-package visual-fill-column
-               :hook (org-mode . efs/org-mode-visual-fill))
+               :hook (org-mode . kito/org-mode-visual-fill))
 
-  (defun efs/org-mode-setup ()
+  (defun kito/org-mode-setup ()
     (org-indent-mode)
     (variable-pitch-mode 1)
     (spacemacs/toggle-visual-line-navigation-on))
 
   (use-package org
     :ensure org-contrib
-    :hook (org-mode . efs/org-mode-setup)
+    :hook (org-mode . kito/org-mode-setup)
     :config
-    (efs/org-font-setup))
+    (setq org-startup-indented t)
+    (setq org-pretty-entities t)
+    (setq org-hide-emphasis-markers t)
+    (setq org-ellipsis " ▾")
+    (setq org-startup-with-inline-images t)
+    (setq org-image-actual-width '(600))
+    (kito/org-font-setup))
 
   (use-package org-pdftools
     :hook (org-mode . org-pdftools-setup-link))

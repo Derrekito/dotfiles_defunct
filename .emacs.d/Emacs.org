@@ -402,7 +402,6 @@ This section contains the basic configuration for =org-mode= plus the configurat
     (setq org-startup-with-inline-images t)
     (setq org-image-actual-width '(600))
     (setq org-ellipsis " ▾")
-    
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
     (setq org-log-into-drawer t)
@@ -689,7 +688,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 
 #+begin_src emacs-lisp
-  
+
   (require 'ox-latex)
   (require 'ox-beamer)
   (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
@@ -714,17 +713,17 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+begin_src emacs-lisp
 
   (add-hook 'python-mode-hook
-            (lambda () (setq python-indent-offset 4)))
+            (lambda () (setq python-indent-offset 8)))
   (add-hook 'makefile-mode-hook
             (lambda ()
               (setq indent-tabs-mode t)
               (setq-default indent-tabs-mode t)
-              (setq tab-width 4)))
+              (setq tab-width 8)))
   (add-hook 'makefile-gmake-mode-hook
             (lambda ()
               (setq indent-tabs-mode t)
               (setq-default indent-tabs-mode t)
-              (setq tab-width 4)))
+              (setq tab-width 8)))
 
   ;; Convert hard tabs to spaces on save
   (add-hook 'before-save-hook
