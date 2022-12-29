@@ -3,10 +3,7 @@
 
 * About
 
-
 This is the configuration we've been building in the *Emacs From Scratch* series, now written as an Org Mode document.  This file generates [[file:init.el][init.el]] which can be loaded by Emacs at startup.
-
-*NOTE:* If you run into any issues while using this configuration, please [[https://github.com/daviwil/emacs-from-scratch/issues/new][file an issue]] or send me an email at =david at systemcrafters.cc=.
 
 The following variables are used to tweak some of the configuration pieces for use in the live streams so you might need to adjust them for your local machine if you try to use this configuration directly.
 
@@ -32,6 +29,9 @@ In this document I've added links in many places that lead you to documentation 
   ;; for your system!
   (defvar efs/default-font-size 160)
   (defvar efs/default-variable-font-size 160)
+  (defvar efs/default-org-block-font-size 140)
+  (defvar efs/default-org-code-font-size 140)
+  (defvar efs/default-org-table-font-size 120)
   
 #+end_src
 
@@ -153,7 +153,7 @@ I am using the [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://f
   (set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
 
   ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)  
 
   (setq default-frame-alist '((font . "Fira Code Retina")))
 #+end_src
@@ -368,14 +368,17 @@ The =efs/org-font-setup= function configures various text faces to tweak the siz
       (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    ;(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    ;(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    ;(set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
-
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-block nil :font "Fira Code Retina" :height efs/default-org-block-font-size)
+    (set-face-attribute 'org-table nil :font "Fira Code Retina" :height efs/default-org-table-font-size)
+    (set-face-attribute 'org-code nil :font "Fira Code Retina" :height efs/default-org-code-font-size)
+    )
 #+end_src
 
 ** Basic Config
@@ -393,15 +396,17 @@ This section contains the basic configuration for =org-mode= plus the configurat
     :ensure org-contrib
     :hook (org-mode . efs/org-mode-setup)
     :config
+    (setq org-startup-indented t)
+    (setq org-pretty-entities t)
+    (setq org-hide-emphasis-markers t)
+    (setq org-startup-with-inline-images t)
+    (setq org-image-actual-width '(600))
     (setq org-ellipsis " ▾")
-
+    
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
     (setq org-log-into-drawer t)
-
-    (setq org-agenda-files
-          '("~/OrgFiles/Tasks.org"))
-
+    (setq org-agenda-files '("~/OrgFiles/Tasks.org"))
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
@@ -419,7 +424,7 @@ This section contains the basic configuration for =org-mode= plus the configurat
 
     (setq org-tag-alist
           '((:startgroup)
-                                          ; Put mutually exclusive tags here
+            ; Put mutually exclusive tags here
             (:endgroup)
             ("@errand" . ?E)
             ("@home" . ?H)
@@ -591,22 +596,22 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 
 #+begin_src emacs-lisp
 
-    ; language support
-    (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-        (python . t)
-        (C . t)
-        (awk . t)
-        (shell . t)
-        (gnuplot .t )
-        (sed . t)
-        (jupyter . t)))
+  ;; language support
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (C . t)
+     (awk . t)
+     (shell . t)
+     (gnuplot .t )
+     (sed . t)
+     (jupyter . t)))
 
-  ;The minimum number of lines for block output. This fixes the colon issue.
+  ;; The minimum number of lines for block output. This fixes the colon issue.
   (setq org-babel-min-lines-for-block-output 0)
 
-  ; allow auto evaluation
+  ;; allow auto evaluation
   (setq org-confirm-babel-evaluate nil)
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
@@ -618,7 +623,7 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 
   ;; auto eval src blocks
   (defun my-org-confirm-babel-evaluate (lang body)
-    (not (string= lang "ditaa")))  ;don't ask for ditaa
+    (not (string= lang "jupyter-python")))  ;don't ask for jupyter-python
   (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 
   ;; don't insert colons into result
@@ -671,7 +676,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun efs/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name)
-                        (expand-file-name "~/Projects/Code/emacs-from-scratch/Emacs.org"))
+                        (expand-file-name "~/.emacs.d/Emacs.org"))
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
         (org-babel-tangle))))
@@ -684,20 +689,20 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 
 #+begin_src emacs-lisp
-
+  
   (require 'ox-latex)
   (require 'ox-beamer)
   (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
   (setq org-latex-listings 'minted
-      org-latex-packages-alist '(("" "minted"))
-      org-export-latex-minted-options
-      '(("frame" "lines")
-        ("fontsize" "\\scriptsize")
-        ("framesep" "2mm")
-        ("bgcolor" "LightGray")
-        ("linenos" "")
-        ("breaklines" "true")
-        ("breakanywhere" "true")))
+        org-latex-packages-alist '(("" "minted"))
+        org-export-latex-minted-options
+        '(("frame" "lines")
+          ("fontsize" "\\scriptsize")
+          ("framesep" "2mm")
+          ("bgcolor" "LightGray")
+          ("linenos" "")
+          ("breaklines" "true")
+          ("breakanywhere" "true")))
 
 #+end_src
 
@@ -708,25 +713,29 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+begin_src emacs-lisp
 
-(add-hook 'makefile-mode-hook
-  (lambda ()
-    (setq indent-tabs-mode t)
-    (setq-default indent-tabs-mode t)
-    (setq tab-width 4)))
-(add-hook 'makefile-gmake-mode-hook
-  (lambda ()
-    (setq indent-tabs-mode t)
-    (setq-default indent-tabs-mode t)
-    (setq tab-width 4)))
-; Convert hard tabs to spaces on save
-(add-hook 'before-save-hook
-  (lambda ()
-    ; But not Makefiles
-    (if (member major-mode '(makefile-mode makefile-gmake-mode))
-      (tabify (point-min) (point-max))
-      (untabify (point-min) (point-max)))))
+  (add-hook 'python-mode-hook
+            (lambda () (setq python-indent-offset 4)))
+  (add-hook 'makefile-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)
+              (setq-default indent-tabs-mode t)
+              (setq tab-width 4)))
+  (add-hook 'makefile-gmake-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)
+              (setq-default indent-tabs-mode t)
+              (setq tab-width 4)))
+
+  ;; Convert hard tabs to spaces on save
+  (add-hook 'before-save-hook
+            (lambda ()
+              ;; But not Makefiles
+              (if (member major-mode '(makefile-mode makefile-gmake-mode))
+                  (tabify (point-min) (point-max))
+                (untabify (point-min) (point-max)))))
 
 #+end_src
+
 
 *** IDE Features with lsp-mode
 
@@ -878,9 +887,6 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
 
 #+end_src
 
-#+RESULTS:
-| global-company-mode | tramp-register-archive-file-name-handler | magit-maybe-define-global-key-bindings | table--make-cell-map |
-
 ** Cuda Mode
 
 #+begin_src emacs-lisp
@@ -888,6 +894,7 @@ We also use [[https://github.com/sebastiencs/company-box][company-box]] to furth
   (use-package cuda-mode)
 
 #+end_src
+
 ** Projectile
 
 [[https://projectile.mx/][Projectile]] is a project management library for Emacs which makes it a lot easier to navigate around code projects for various languages.  Many packages integrate with Projectile so it's a good idea to have it installed even if you don't use its commands directly.

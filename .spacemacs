@@ -33,7 +33,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(markdown
+   '(csv
+     markdown
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -66,7 +67,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter)
+   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -534,7 +535,8 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil
+   dotspacemacs-pretty-docs t
+   ;;dotspacemacs-pretty-docs nil
 
    ;; If nil the home buffer shows the full path of agenda items
    ;; and todos. If non-nil only the file name is shown.
@@ -558,12 +560,10 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (defvar efs/default-font-size 120)
-  (defvar efs/default-variable-font-size 120)
+  (defvar efs/default-font-size 160)
+  (defvar efs/default-variable-font-size 160)
 
 )
-
-
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
@@ -575,195 +575,182 @@ dump."
 (defun dotspacemacs/user-config ()
   (require 'jupyter)
   (require 'org-contrib)
-  ;;(require 'org-noter)
   (require 'org-pdftools)
-  ;;(require 'org-noter-pdftools)
   (require 'org-bullets)
 
   (require 'org-tempo)
   (require 'ox-latex)
   (require 'ox-beamer)
   (require 'visual-fill-column)
-  ;;(use-package ox-latex
-  ;;  :after ox))
+
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+  (setq org-image-actual-width 600)
   (dolist (mode '(org-mode-hook
-                term-mode-hook
-                shell-mode-hook
-                treemacs-mode-hook
-                eshell-mode-hook
-                pdf-view-mode-hook
-                doc-view-mode-hook))
+                  term-mode-hook
+                  shell-mode-hook
+                  treemacs-mode-hook
+                  eshell-mode-hook
+                  pdf-view-mode-hook
+                  doc-view-mode-hook))
+
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;(set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
+  ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height efs/default-font-size)
 
-;; Set the fixed pitch face
-;(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
+  ;; Set the fixed pitch face
+  ;;(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height efs/default-font-size)
 
-;; Set the variable pitch face
-;(set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
-;(setq default-frame-alist '((font . "Fira Code Retina")))
+  ;;(setq default-frame-alist '((font . "Fira Code Retina")))
 
-(defun efs/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (defun efs/org-font-setup ()
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.5)
+                    (org-level-2 . 1.2)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-
-
-(defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
+  (defun efs/org-mode-visual-fill ()
+    (setq visual-fill-column-width 125
+          visual-fill-column-center-text t)
     (add-hook 'visual-fill-column-mode-hook 'spacemacs/toggle-visual-line-navigation-on)
     (setq split-window-preferred-function 'visual-fill-column-split-window-sensibly)
     (advice-add 'text-scale-adjust :after 'visual-fill-column-adjust)
-  (visual-fill-column-mode 1))
+    (visual-fill-column-mode 1))
 
-(defun efs/org-mode-setup ()
-  (org-indent-mode)
-  (variable-pitch-mode 1)
-  ;;(visual-line-mode 1)
-  (spacemacs/toggle-visual-line-navigation-on))
+  (use-package visual-fill-column
+               :hook (org-mode . efs/org-mode-visual-fill))
 
-(use-package org
-  :ensure org-contrib
-  :hook (org-mode . efs/org-mode-setup)
-  :config
-  (efs/org-font-setup))
+  (defun efs/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (spacemacs/toggle-visual-line-navigation-on))
 
+  (use-package org
+    :ensure org-contrib
+    :hook (org-mode . efs/org-mode-setup)
+    :config
+    (efs/org-font-setup))
 
-(use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+  (use-package org-pdftools
+    :hook (org-mode . org-pdftools-setup-link))
 
-(add-to-list 'auto-mode-alist '("\\.\\(?:PDF\\|DVI\\|OD[FGPST]\\|DOCX\\|XLSX?\\|PPTX?\\|pdf\\|djvu\\|dvi\\|od[fgpst]\\|docx\\|xlsx?\\|pptx?\\)\\'" . pdf-view-mode))
+  (add-to-list 'auto-mode-alist '("\\.\\(?:PDF\\|DVI\\|OD[FGPST]\\|DOCX\\|XLSX?\\|PPTX?\\|pdf\\|djvu\\|dvi\\|od[fgpst]\\|docx\\|xlsx?\\|pptx?\\)\\'" . pdf-view-mode))
 
-(use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+  (setq org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
 
-(defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
-
-(use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
-
-; language support
+  ;; language support
   (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((emacs-lisp . t)
-      (python . t)
-      (C . t)
-      (awk . t)
-      (shell . t)
-      (gnuplot .t )
-      (sed . t)
-      (jupyter . t)))
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (C . t)
+     (awk . t)
+     (shell . t)
+     (gnuplot .t )
+     (sed . t)
+     (jupyter . t)))
 
-;The minimum number of lines for block output. This fixes the colon issue.
-(setq org-babel-min-lines-for-block-output 0)
+  ;;The minimum number of lines for block output. This fixes the colon issue.
+  (setq org-babel-min-lines-for-block-output 0)
 
-; allow auto evaluation
-(setq org-confirm-babel-evaluate nil)
+  ;; allow auto evaluation
+  (setq org-confirm-babel-evaluate nil)
 
-(push '("conf-unix" . conf-unix) org-src-lang-modes)
+  (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-;; auto eval src blocks
-(defun my-org-confirm-babel-evaluate (lang body)
-  (not (string= lang "ditaa")))  ;don't ask for ditaa
-(setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
+  ;; auto eval src blocks
+  (defun my-org-confirm-babel-evaluate (lang body)
+    (not (string= lang "ditaa")))  ;don't ask for ditaa
+  (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 
-;; don't insert colons into result
-(setq org-babel-min-lines-for-block-output 0)
+  ;; don't insert colons into result
+  (setq org-babel-min-lines-for-block-output 0)
 
-;; remove example block literal in latex due to removing colons
-(defun ndk/clean-up-latex-export-blocks (text backend info)
-  ""
-  (when (org-export-derived-backend-p backend 'latex)
-    (replace-regexp-in-string "#\\+begin_example\n" ""
-                              (replace-regexp-in-string "#\\+end_example\n" "" text))))
+  ;; remove example block literal in latex due to removing colons
+  (defun ndk/clean-up-latex-export-blocks (text backend info)
+    ""
+    (when (org-export-derived-backend-p backend 'latex)
+      (replace-regexp-in-string "#\\+begin_example\n" ""
+                                (replace-regexp-in-string "#\\+end_example\n" "" text))))
 
-;;  (add-to-list 'org-export-filter-export-block-functions
-;;               #'ndk/clean-up-latex-export-blocks)
+  ;; This is needed as of Org 9.2
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
-;; This is needed as of Org 9.2
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
-(setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
-(setq org-latex-listings 'minted
-      org-latex-packages-alist '(("" "minted"))
-      org-export-latex-minted-options
-      '(("frame" "lines")
-        ("fontsize" "\\scriptsize")
-        ("framesep" "2mm")
-        ("bgcolor" "LightGray")
-        ("linenos" "")
-        ("breaklines" "true")
-        ("breakanywhere" "true")))
+  (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
+  (setq org-latex-listings 'minted
+        org-latex-packages-alist '(("" "minted"))
+        org-export-latex-minted-options
+        '(("frame" "lines")
+          ("fontsize" "\\scriptsize")
+          ("framesep" "2mm")
+          ("bgcolor" "LightGray")
+          ("linenos" "")
+          ("breaklines" "true")
+          ("breakanywhere" "true")))
 
-(add-hook 'makefile-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode t)
-            (setq-default indent-tabs-mode t)
-            (setq tab-width 4)))
+  (setq ieeetran-class
+        '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
+          ("\\section{\\textsc{%s}}" . "\\section*{%s}")
+          ("\\subsection{%s}" . "\\subsection*{%s}")
+          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+          ("\\paragraph{%s}" . "\\paragraph*{%s}")
+          ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-(add-hook 'makefile-gmake-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode t)
-            (setq-default indent-tabs-mode t)
-            (setq tab-width 4)))
-;; Convert hard tabs to spaces on save
-(add-hook 'before-save-hook
-         (lambda ()
-           ;; But not Makefiles
-           (if (member major-mode '(makefile-mode makefile-gmake-mode))
-               (tabify (point-min) (point-max))
-             (untabify (point-min) (point-max)))))
+  (with-eval-after-load 'ox-latex
+    (add-to-list 'org-latex-classes ieeetran-class t)))
 
-(setq c-default-style
-      '((java-mode . "java")
-        (awk-mode . "awk")
-        (cuda-mode . "bsd")
-        (other . "bsd")))
+  (add-hook 'makefile-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)
+              (setq-default indent-tabs-mode t)
+              (setq tab-width 4)))
 
-(setq ieeetran-class
-  '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
-    ("\\section{\\textsc{%s}}" . "\\section*{%s}")
-    ("\\subsection{%s}" . "\\subsection*{%s}")
-    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-    ("\\paragraph{%s}" . "\\paragraph*{%s}")
-    ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-hook 'makefile-gmake-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)
+              (setq-default indent-tabs-mode t)
+              (setq tab-width 4)))
 
-(with-eval-after-load 'ox-latex
-  (add-to-list 'org-latex-classes ieeetran-class t))
-)
+  ;; Convert hard tabs to spaces on save
+  (add-hook 'before-save-hook
+            (lambda ()
+              ;; But not Makefiles
+              (if (member major-mode '(makefile-mode makefile-gmake-mode))
+                  (tabify (point-min) (point-max))
+                (untabify (point-min) (point-max)))))
+
+  (setq c-default-style
+        '((java-mode . "java")
+          (awk-mode . "awk")
+          (cuda-mode . "bsd")
+          (other . "bsd")))
+
 
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -779,7 +766,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
+   '(csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
