@@ -745,13 +745,13 @@ dump."
             (lambda ()
               (setq indent-tabs-mode t)
               (setq-default indent-tabs-mode t)
-              (setq tab-width 4)))
+              (setq tab-width 8)))
 
   (add-hook 'makefile-gmake-mode-hook
             (lambda ()
               (setq indent-tabs-mode t)
               (setq-default indent-tabs-mode t)
-              (setq tab-width 4)))
+              (setq tab-width 8)))
 
   ;; Convert hard tabs to spaces on save
   (add-hook 'before-save-hook
