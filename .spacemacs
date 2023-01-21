@@ -33,8 +33,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(python
-     csv
+   '(csv
      markdown
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -57,7 +56,10 @@ This function should only modify configuration layer settings."
      ;;spell-checking
      syntax-checking
      ;; version-control
-     treemacs)
+     treemacs
+     (chatgpt :location (recipe
+                         :fetcher github
+                         :repo "joshcho/ChatGPT.el")))
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -68,7 +70,8 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode)
+   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode quelpa)
+
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -718,7 +721,7 @@ dump."
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
-
+  (customize-set-value 'org-latex-with-hyperref nil)
   (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
   (setq org-latex-listings 'minted
         org-latex-packages-alist '(("" "minted"))
@@ -739,29 +742,28 @@ dump."
           ("\\paragraph{%s}" . "\\paragraph*{%s}")
           ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-  (setq ieeeconf-class
-        '("IEEEconf" "\\documentclass[11pt]{IEEEconf}"
-          ("\\section{\\textsc{%s}}" . "\\section*{%s}")
-          ("\\subsection{%s}" . "\\subsection*{%s}")
-          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-          ("\\paragraph{%s}" . "\\paragraph*{%s}")
-          ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
   (with-eval-after-load 'ox-latex
-    (add-to-list 'org-latex-classes ieeetran-class t)
-    (add-to-list 'org-latex-classes ieeeconf-class t))
+    (add-to-list 'org-latex-classes ieeetran-class t))
 
-  (add-hook 'makefile-mode-hook
-            (lambda ()
-              (setq indent-tabs-mode t)
-              (setq-default indent-tabs-mode t)
-              (setq tab-width 8)))
+  (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage")
+  (setq org-export-allow-bind-keywords t)
 
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (setq c-basic-offset 4)
+  (setq c-basic-indent 4)
+  
   (add-hook 'makefile-gmake-mode-hook
             (lambda ()
               (setq indent-tabs-mode t)
-              (setq-default indent-tabs-mode t)
+              ;;(setq-default indent-tabs-mode t)
               (setq tab-width 8)))
+
+  ;; set the indentation to spaces and tab-width to 4 when editing C/C++ files
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)))
 
   ;; Convert hard tabs to spaces on save
   (add-hook 'before-save-hook
@@ -776,9 +778,7 @@ dump."
           (awk-mode . "awk")
           (cuda-mode . "bsd")
           (other . "bsd")))
-
-  (setq org-export-allow-bind-keywords t))
-
+)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -787,4 +787,18 @@ dump."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
+ '(package-selected-packages
+   '(quelpa quelpa-use-package csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 )
