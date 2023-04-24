@@ -33,7 +33,10 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(csv
+   '(javascript
+     html
+     python
+     csv
      markdown
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -56,10 +59,7 @@ This function should only modify configuration layer settings."
      ;;spell-checking
      syntax-checking
      ;; version-control
-     treemacs
-     (chatgpt :location (recipe
-                         :fetcher github
-                         :repo "joshcho/ChatGPT.el")))
+     treemacs)
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -70,7 +70,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode quelpa)
+   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode quelpa flycheck-cask flycheck-cstyle dockerfile-mode)
 
 
    ;; A list of packages that cannot be updated.
@@ -588,7 +588,7 @@ dump."
   (require 'ox-latex)
   (require 'ox-beamer)
   (require 'visual-fill-column)
-
+  (require 'dockerfile-mode)
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
@@ -600,8 +600,12 @@ dump."
                   pdf-view-mode-hook
                   doc-view-mode-hook))
 
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+  (global-auto-revert-mode t)
+  ;(auto-revert-use-notify nil)
+  (setq revert-without-query '(".*"))
+  
   ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height kito/default-font-size)
 
   ;; Set the fixed pitch face
@@ -672,14 +676,104 @@ dump."
     (setq org-ellipsis " ▾")
     (setq org-startup-with-inline-images t)
     (setq org-image-actual-width '(600))
+    (setq org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
+    ;;The minimum number of lines for block output. This fixes the colon issue.
+    (setq org-babel-min-lines-for-block-output 0)
+
+    (setq org-agenda-files
+          '("~/org/Tasks.org"
+            "~/org/Birthdays.org"
+            "~/org/Archive.org"))
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+
+    ;; allow auto evaluation
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
+    (setq org-latex-listings 'minted
+          org-latex-packages-alist '(("" "minted"))
+          org-export-latex-minted-options
+          '(("frame" "lines")
+            ("fontsize" "\\scriptsize")
+            ("framesep" "2mm")
+            ("bgcolor" "LightGray")
+            ("linenos" "")
+            ("breaklines" "true")
+            ("breakanywhere" "true")))
+
+    (setq ieeetran-class
+          '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
+            ("\\section{\\textsc{%s}}" . "\\section*{%s}")
+            ("\\subsection{%s}" . "\\subsection*{%s}")
+            ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+            ("\\paragraph{%s}" . "\\paragraph*{%s}")
+            ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+    (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage")
+    (setq org-export-allow-bind-keywords t)
+
+    ;; Configure custom agenda views
+    (setq org-agenda-custom-commands
+          '(("d" "Dashboard"
+             ((agenda "" ((org-deadline-warning-days 7)))
+              (todo "NEXT"
+                    ((org-agenda-overriding-header "Next Tasks")))
+              (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+            ("n" "Next Tasks"
+             ((todo "NEXT"
+                    ((org-agenda-overriding-header "Next Tasks")))))
+
+            ("W" "Work Tasks" tags-todo "+work-email")
+
+            ;; Low-effort next actions
+            ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+             ((org-agenda-overriding-header "Low Effort Tasks")
+              (org-agenda-max-todos 20)
+              (org-agenda-files org-agenda-files)))
+
+            ("w" "Workflow Status"
+             ((todo "WAIT"
+                    ((org-agenda-overriding-header "Waiting on External")
+                     (org-agenda-files org-agenda-files)))
+              (todo "REVIEW"
+                    ((org-agenda-overriding-header "In Review")
+                     (org-agenda-files org-agenda-files)))
+              (todo "PLAN"
+                    ((org-agenda-overriding-header "In Planning")
+                     (org-agenda-todo-list-sublevels nil)
+                     (org-agenda-files org-agenda-files)))
+              (todo "BACKLOG"
+                    ((org-agenda-overriding-header "Project Backlog")
+                     (org-agenda-todo-list-sublevels nil)
+                     (org-agenda-files org-agenda-files)))
+              (todo "READY"
+                    ((org-agenda-overriding-header "Ready for Work")
+                     (org-agenda-files org-agenda-files)))
+              (todo "ACTIVE"
+                    ((org-agenda-overriding-header "Active Projects")
+                     (org-agenda-files org-agenda-files)))
+              (todo "COMPLETED"
+                    ((org-agenda-overriding-header "Completed Projects")
+                     (org-agenda-files org-agenda-files)))
+              (todo "CANC"
+                    ((org-agenda-overriding-header "Cancelled Projects")
+                     (org-agenda-files org-agenda-files)))))))
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+            (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
     (kito/org-font-setup))
+
+  ;; spacemacs uses something other than org-bullets
+  ;; (use-package org-bullets
+  ;;   :after org
+  ;;   :hook (org-mode . org-bullets-mode)
+  ;;   :custom)
 
   (use-package org-pdftools
     :hook (org-mode . org-pdftools-setup-link))
 
   (add-to-list 'auto-mode-alist '("\\.\\(?:PDF\\|DVI\\|OD[FGPST]\\|DOCX\\|XLSX?\\|PPTX?\\|pdf\\|djvu\\|dvi\\|od[fgpst]\\|docx\\|xlsx?\\|pptx?\\)\\'" . pdf-view-mode))
 
-  (setq org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
 
   ;; language support
   (org-babel-do-load-languages
@@ -693,11 +787,6 @@ dump."
      (sed . t)
      (jupyter . t)))
 
-  ;;The minimum number of lines for block output. This fixes the colon issue.
-  (setq org-babel-min-lines-for-block-output 0)
-
-  ;; allow auto evaluation
-  (setq org-confirm-babel-evaluate nil)
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
@@ -722,37 +811,17 @@ dump."
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
   (customize-set-value 'org-latex-with-hyperref nil)
-  (setq org-latex-pdf-process (list "latexmk -shell-escape -f -pdf %f"))
-  (setq org-latex-listings 'minted
-        org-latex-packages-alist '(("" "minted"))
-        org-export-latex-minted-options
-        '(("frame" "lines")
-          ("fontsize" "\\scriptsize")
-          ("framesep" "2mm")
-          ("bgcolor" "LightGray")
-          ("linenos" "")
-          ("breaklines" "true")
-          ("breakanywhere" "true")))
-
-  (setq ieeetran-class
-        '("IEEEtran" "\\documentclass[11pt]{IEEEtran}"
-          ("\\section{\\textsc{%s}}" . "\\section*{%s}")
-          ("\\subsection{%s}" . "\\subsection*{%s}")
-          ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-          ("\\paragraph{%s}" . "\\paragraph*{%s}")
-          ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
   (with-eval-after-load 'ox-latex
     (add-to-list 'org-latex-classes ieeetran-class t))
 
-  (setq org-latex-toc-command "\\clearpage \\tableofcontents \\clearpage")
-  (setq org-export-allow-bind-keywords t)
 
   (setq-default indent-tabs-mode nil)
   (setq-default tab-width 4)
   (setq c-basic-offset 4)
   (setq c-basic-indent 4)
-  
+  (c-set-offset 'case-label '+)
+
   (add-hook 'makefile-gmake-mode-hook
             (lambda ()
               (setq indent-tabs-mode t)
@@ -778,6 +847,9 @@ dump."
           (awk-mode . "awk")
           (cuda-mode . "bsd")
           (other . "bsd")))
+
+  (eval-after-load 'flycheck
+    '(add-hook 'flycheck-mode-hook #'flycheck-cask-setup))
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -794,7 +866,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
-   '(quelpa quelpa-use-package csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
+   '(dockerfile-mode import-js grizzl js-doc js2-refactor multiple-cursors livid-mode nodejs-repl npm-mode skewer-mode js2-mode tern add-node-modules-path company-web web-completion-data counsel-css emmet-mode helm-css-scss impatient-mode htmlize prettier-js pug-mode sass-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode flycheck-cask flycheck-cstyle blacken code-cells company-anaconda anaconda-mode counsel-gtags cython-mode dap-mode lsp-docker bui ggtags helm-cscope helm-gtags helm helm-pydoc helm-core importmagic epc ctable concurrent deferred live-py-mode lsp-pyright lsp-python-ms nose pip-requirements pipenv load-env-vars pippel poetry py-isort pydoc pyenv-mode pythonic pylookup pytest pyvenv sphinx-doc stickyfunc-enhance xcscope yapfify quelpa quelpa-use-package csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
