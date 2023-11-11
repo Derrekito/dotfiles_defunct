@@ -70,7 +70,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode nov djvu quelpa flycheck-cask flycheck-cstyle dockerfile-mode)
+   dotspacemacs-additional-packages '(org-contrib org-pdftools org-bullets visual-fill-column jupyter cuda-mode nov djvu quelpa flycheck-cask flycheck-cstyle dockerfile-mode sqlite3)
 
 
    ;; A list of packages that cannot be updated.
@@ -682,6 +682,23 @@ dump."
 
   (add-hook 'org-export-filter-parse-tree-functions 'my/org-export-filter-todo-keywords)
 
+  (defun archive-done-tasks-older-than-7-days ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (let* ((deadline (org-entry-get (point) "DEADLINE"))
+              (deadline-date (when deadline
+                               (org-time-string-to-time deadline)))
+              (now (current-time))
+              (seven-days-ago (- (time-to-days now) 7)))
+         (when (and deadline-date
+                    (time-less-p deadline-date (days-to-time seven-days-ago))
+                    (org-entry-is-done-p))
+           (org-archive-subtree)
+           (setq org-map-continue-from (outline-previous-heading)))))
+     nil 'agenda))
+
+  (run-at-time "7 days" nil #'archive-done-tasks-older-than-7-days)
 
   (use-package org
     :ensure org-contrib
@@ -701,6 +718,7 @@ dump."
           '("~/org/Tasks.org"
             "~/org/Birthdays.org"
             "~/org/Archive.org"))
+    (setq org-archive-location "~/org/Archive.org::")
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
 
@@ -847,9 +865,8 @@ dump."
 
   (add-hook 'makefile-gmake-mode-hook
             (lambda ()
-              (setq indent-tabs-mode t)
-              ;;(setq-default indent-tabs-mode t)
-              (setq tab-width 8)))
+              (setq indent-tabs-mode t)  ; Use tabs for indentation
+              (setq tab-width 8)))       ; Set tab width to 8 spaces
 
   ;; set the indentation to spaces and tab-width to 4 when editing C/C++ files
   (add-hook 'c-mode-common-hook
@@ -889,7 +906,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
-   '(djvu nov dockerfile-mode import-js grizzl js-doc js2-refactor multiple-cursors livid-mode nodejs-repl npm-mode skewer-mode js2-mode tern add-node-modules-path company-web web-completion-data counsel-css emmet-mode helm-css-scss impatient-mode htmlize prettier-js pug-mode sass-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode flycheck-cask flycheck-cstyle blacken code-cells company-anaconda anaconda-mode counsel-gtags cython-mode dap-mode lsp-docker bui ggtags helm-cscope helm-gtags helm helm-pydoc helm-core importmagic epc ctable concurrent deferred live-py-mode lsp-pyright lsp-python-ms nose pip-requirements pipenv load-env-vars pippel poetry py-isort pydoc pyenv-mode pythonic pylookup pytest pyvenv sphinx-doc stickyfunc-enhance xcscope yapfify quelpa quelpa-use-package csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
+   '(sqlite3 djvu nov dockerfile-mode import-js grizzl js-doc js2-refactor multiple-cursors livid-mode nodejs-repl npm-mode skewer-mode js2-mode tern add-node-modules-path company-web web-completion-data counsel-css emmet-mode helm-css-scss impatient-mode htmlize prettier-js pug-mode sass-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode flycheck-cask flycheck-cstyle blacken code-cells company-anaconda anaconda-mode counsel-gtags cython-mode dap-mode lsp-docker bui ggtags helm-cscope helm-gtags helm helm-pydoc helm-core importmagic epc ctable concurrent deferred live-py-mode lsp-pyright lsp-python-ms nose pip-requirements pipenv load-env-vars pippel poetry py-isort pydoc pyenv-mode pythonic pylookup pytest pyvenv sphinx-doc stickyfunc-enhance xcscope yapfify quelpa quelpa-use-package csv-mode cuda-mode jupyter all-the-icons-ivy yasnippet-snippets ws-butler writeroom-mode winum which-key wgrep volatile-highlights vim-powerline vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline-all-the-icons space-doc smex smeargle restart-emacs request rainbow-delimiters quickrun popwin pcre2el password-generator paradox overseer org-superstar org-pdftools org-contrib org-bullets open-junk-file nameless multi-line mmm-mode markdown-toc macrostep lsp-ui lsp-treemacs lsp-origami lsp-ivy lorem-ipsum link-hint ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy inspector info+ indent-guide hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md fuzzy forge font-lock+ flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode doom-themes dired-quick-sort diminish devdocs define-word counsel-projectile company column-enforce-mode clean-aindent-mode centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile async aggressive-indent ace-link ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
