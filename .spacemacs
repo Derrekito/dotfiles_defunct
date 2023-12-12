@@ -569,8 +569,8 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (add-to-list 'configuration-layer--elpa-archives
-               '("melpa" . "https://melpa.org/packages/") t)
+  ;; (add-to-list 'configuration-layer--elpa-archives
+  ;;              '("melpa" . "https://melpa.org/packages/") t)
 
   (defvar kito/default-font-size 160)
   (defvar kito/default-variable-font-size 160)
