@@ -2,19 +2,19 @@
 # ~/.bashrc
 #
 
-PATH=$PATH:/home/derrekito/scripts
-
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/OpenBLAS/lib:/usr/local/lib
+PATH=$PATH:$HOME/scripts:$HOME/.cargo/bin:$HOME/.local/bin
 set -o vi
 
 #swap capslock and escape
-setxkbmap -option caps:swapescape
+#setxkbmap -option caps:swapescape
 
 # set tab size to 4
-tabs -4
+#tabs -4
 
 VISUAL='emacsclient -c'
 EDITER='emacsclient -c'
-
+TERMINAL=alacritty
 # escape octal notation passed to sed
 E='\033['
 

@@ -240,7 +240,7 @@ smart_borders on
 #exec ~/scripts/fix_monitors.sh
 
 # disable screen saver
-exec xset s off     
+exec xset s off
 
 # disable energy star option
 exec xset -dpms
@@ -256,3 +256,7 @@ exec set -o vi
 #exec setxkbmap -option caps:swapescape
 
 exec_always --no-startup-id /usr/bin/i3wsr
+
+exec_always --no-startup-id feh --bg-scale $HOME/bg.png
+
+exec_always picom -b
