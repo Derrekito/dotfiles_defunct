@@ -257,6 +257,6 @@ exec set -o vi
 
 exec_always --no-startup-id /usr/bin/i3wsr
 
-exec_always --no-startup-id feh --bg-scale $HOME/scripts/set_random_wallpaper.sh
+exec_always --no-startup-id $HOME/scripts/set_random_wallpaper.sh
 
 exec_always picom -b
