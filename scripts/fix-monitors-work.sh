@@ -1,8 +1,7 @@
 #!/bin/bash
 
-EXTERN='HDMI-0'
-HOST='eDP-1-1'
-
+EXTERN='HDMI-1-0'
+HOST='eDP-1'
 
 #exec xrandr --output DP-1 --off
 #exec xrandr --output eDP-1-1 --auto
@@ -13,8 +12,9 @@ HOST='eDP-1-1'
 #xrandr --output $LEFT --auto
 #xrandr --output $RIGHT --auto
 #xrandr --output $LEFT --left-of $CENTER --auto
-xrandr --output $EXTERN --right-of $HOST --auto
-
+#xrandr --output $EXTERN --right-of $HOST --auto
+xrandr --output $EXTERN --auto
+xrandr --output $HOST --off
 
 xset s off
 xset -dpms
