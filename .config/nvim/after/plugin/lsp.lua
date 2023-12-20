@@ -5,7 +5,7 @@ lsp.preset("recommended")
 -- Use mason-lspconfig for installing LSP servers
 require("mason").setup()
 require("mason-lspconfig").setup({
-    ensure_installed = { 'tsserver', 'rust_analyzer' },
+    ensure_installed = { 'clangd', 'rust_analyzer', 'bashls', 'lua_ls', 'marksman', 'pylsp', 'jsonls', 'texlab' }
 })
 
 -- Updated cmp configuration
@@ -34,7 +34,13 @@ local cmp_mappings = {
 
 -- Setup nvim-cmp
 cmp.setup({
-  mapping = cmp_mappings
+  mapping = cmp_mappings,
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'buffer' },
+    -- Additional source for orgmode
+    { name = 'orgmode' } 
+  }
 })
 
 lsp.set_preferences({
@@ -47,7 +53,6 @@ lsp.set_preferences({
     }
 })
 
--- On attach function remains the same
 lsp.on_attach(function(client, bufnr)
   local opts = {buffer = bufnr, remap = false}
 
@@ -68,5 +73,3 @@ lsp.setup()
 vim.diagnostic.config({
     virtual_text = true
 })
-
-
