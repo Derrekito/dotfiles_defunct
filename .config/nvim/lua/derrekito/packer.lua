@@ -15,27 +15,48 @@ return require('packer').startup(function(use)
 
     --use "rebelot/kanagawa.nvim"
 
-    use({ 'rose-pine/neovim', as = 'rose-pine' })
-    use('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
+    use({
+        'rose-pine/neovim',
+        as = 'rose-pine',
+        config = function()
+            vim.cmd('colorscheme rose-pine')
+        end
+    })
+    --use('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
+    use {
+        'nvim-treesitter/nvim-treesitter',
+        run = function()
+            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            ts_update()
+        end,}
     use('nvim-treesitter/playground')
     use('theprimeagen/harpoon')
     use('mbbill/undotree')
     use('tpope/vim-fugitive')
-
     use {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v3.x',
         requires = {
+            -- Snippets
+            {'L3MON4D3/LuaSnip'},
+            {'rafamadriz/friendly-snippets'},
+            {'saadparwaiz1/cmp_luasnip'}, -- Snippet source for nvim-cmp
+
             --- Uncomment these if you want to manage LSP servers from neovim
             {'williamboman/mason.nvim'},
             {'williamboman/mason-lspconfig.nvim'},
 
             -- LSP Support
             {'neovim/nvim-lspconfig'},
+
             -- Autocompletion
             {'hrsh7th/nvim-cmp'},
+            {'hrsh7th/cmp-buffer'},
+            {'hrsh7th/cmp-path'},
+            {'saadparwaiz1/cmp_luasnip'},
             {'hrsh7th/cmp-nvim-lsp'},
-            {'L3MON4D3/LuaSnip'},
+            {'hrsh7th/cmp-nvim-lua'},
+            {'hrsh7th/cmp-cmdline'}
         }
     }
 
@@ -44,14 +65,33 @@ return require('packer').startup(function(use)
         require('orgmode').setup_ts_grammar()
     end}
 
-    -- use('github/copilot.vim')
+    use("folke/zen-mode.nvim")
+    use 'ThePrimeagen/vim-be-good'
 
-    use 'hrsh7th/nvim-cmp' -- The main completion plugin
-    use 'hrsh7th/cmp-nvim-lsp' -- LSP source for nvim-cmp
-    use 'hrsh7th/cmp-buffer' -- Buffer completions
-    use 'hrsh7th/cmp-path' -- Path completions
-    use 'hrsh7th/cmp-cmdline' -- Cmdline completions
+    use({
+        "epwalsh/obsidian.nvim",
+        tag = "*",  -- recommended, use latest release instead of latest commit
+        requires = {
+            -- Required.
+            "nvim-lua/plenary.nvim",
 
-    use 'L3MON4D3/LuaSnip' -- Snippet Engine
-    use 'saadparwaiz1/cmp_luasnip' -- Snippet source for nvim-cmp
+            -- see below for full list of optional dependencies 👇
+        },
+        config = function()
+            require("obsidian").setup({
+                workspaces = {
+                    {
+                        name = "personal",
+                        path = "~/vaults/personal",
+                    },
+                    {
+                        name = "work",
+                        path = "~/vaults/work",
+                    },
+                },
+
+                -- see below for full list of options 👇
+            })
+        end,
+    })
 end)

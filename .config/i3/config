@@ -215,8 +215,20 @@ focus_follows_mouse no
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-        status_command i3status
-  font pango:Hack 15
+        status_command i3blocks
+        font pango:Hack 15
+        #tray_output primary
+        colors {
+            background #191724  # Rose Pine Background
+            statusline #e0def4  # Rose Pine Foreground
+            separator #555169  # Rose Pine Muted
+                            # background text border
+            focused_workspace  #2a273f #e0def4 #907aa9  # Dark background, light text, muted border
+            active_workspace   #393552 #e0def4 #907aa9  # Slightly lighter background for active
+            inactive_workspace #191724 #686274 #191724  # Darkest for inactive, muted text
+            urgent_workspace   #eb6f92 #e0def4 #eb6f92  # Rose Pine's distinct pink for urgent
+            binding_mode       #907aa9 #e0def4 #907aa9  # Muted purple for binding mode
+        }
 }
 
 # class                 border  backgr. text    indicator child_border
@@ -248,7 +260,8 @@ exec xset -dpms
 # set solid background color
 exec xsetroot -solid "#000000"
 
-exec polychromatic-tray-applet &
+exec --no-startup-id polychromatic-tray-applet &
+#exec --no-startup-id nm-applet &
 #exec emacs --daemon
 
 exec set -o vi
@@ -260,3 +273,7 @@ exec_always --no-startup-id /usr/bin/i3wsr
 exec_always --no-startup-id $HOME/scripts/set_random_wallpaper.sh
 
 exec_always picom -b
+
+exec_always --no-startup-id nm-applet
+
+exec_always --no-startup-id pasystray

@@ -1,13 +1,3 @@
--- Emacs Bindings
-vim.api.nvim_set_keymap('n', '<C-x>2', ':split<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-x>3', ':vsplit<CR>', { noremap = true, silent = true })
--- looks like nvim is hardcoded to hate emacs users
---vim.api.nvim_set_keymap('n', '<C-x><C-c>', ':qa!<CR>', { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('n', '<C-x><C-s>', ':write<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-x><C-c>', '<Cmd>qa!<CR>', { noremap = true, silent = true })
-
--- theprimeagen remaps
 vim.g.mapleader = " "
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
