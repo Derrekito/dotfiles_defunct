@@ -60,7 +60,7 @@ return require('packer').startup(function(use)
         }
     }
 
-    use {'nvim-orgmode/orgmode', config = function()
+use {'nvim-orgmode/orgmode', config = function()
         require('orgmode').setup{}
         require('orgmode').setup_ts_grammar()
     end}
@@ -94,4 +94,24 @@ return require('packer').startup(function(use)
             })
         end,
     })
+    use {
+        "kyazdani42/nvim-tree.lua",
+        requires = "kyazdani42/nvim-web-devicons" ,
+        wants = "nvim-web-devicons",
+        config = function()
+            require("nvim-web-devicons").setup()
+
+            require("nvim-tree").setup {
+                hijack_cursor = true,
+                update_cwd = true,
+                update_focused_file = {
+                    enable = true,
+                    update_cwd = true,
+                },
+                view = {
+                    width = 40
+                }
+            }
+        end
+    }
 end)

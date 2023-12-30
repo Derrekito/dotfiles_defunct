@@ -144,13 +144,25 @@ _G.packer_plugins = {
     path = "/home/derrekito/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
     url = "https://github.com/neovim/nvim-lspconfig"
   },
+  ["nvim-tree.lua"] = {
+    config = { "\27LJ\2\n—\1\0\0\4\0\a\0\0146\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\0016\0\0\0'\2\3\0B\0\2\0029\0\2\0005\2\4\0005\3\5\0=\3\6\2B\0\2\1K\0\1\0\tview\1\0\1\nwidth\3(\1\0\2\18hijack_cursor\2\15update_cwd\2\14nvim-tree\nsetup\22nvim-web-devicons\frequire\0" },
+    loaded = true,
+    path = "/home/derrekito/.local/share/nvim/site/pack/packer/start/nvim-tree.lua",
+    url = "https://github.com/kyazdani42/nvim-tree.lua",
+    wants = { "nvim-web-devicons" }
+  },
   ["nvim-treesitter"] = {
     loaded = true,
     path = "/home/derrekito/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
     url = "https://github.com/nvim-treesitter/nvim-treesitter"
   },
+  ["nvim-web-devicons"] = {
+    loaded = true,
+    path = "/home/derrekito/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
+    url = "https://github.com/kyazdani42/nvim-web-devicons"
+  },
   ["obsidian.nvim"] = {
-    config = { "\27LJ\2\n¨\1\0\0\5\0\a\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\5\0004\3\3\0005\4\3\0>\4\1\0035\4\4\0>\4\2\3=\3\6\2B\0\2\1K\0\1\0\15workspaces\1\0\0\1\0\2\tpath\18~/vaults/work\tname\twork\1\0\2\tpath\22~/vaults/personal\tname\rpersonal\nsetup\robsidian\frequire\0" },
+    config = { "\27LJ\2\n¨\1\0\0\5\0\a\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\5\0004\3\3\0005\4\3\0>\4\1\0035\4\4\0>\4\2\3=\3\6\2B\0\2\1K\0\1\0\15workspaces\1\0\0\1\0\2\tname\twork\tpath\18~/vaults/work\1\0\2\tname\rpersonal\tpath\22~/vaults/personal\nsetup\robsidian\frequire\0" },
     loaded = true,
     path = "/home/derrekito/.local/share/nvim/site/pack/packer/start/obsidian.nvim",
     url = "https://github.com/epwalsh/obsidian.nvim"
@@ -214,14 +226,18 @@ time([[Defining packer_plugins]], false)
 time([[Config for orgmode]], true)
 try_loadstring("\27LJ\2\n^\0\0\3\0\4\0\f6\0\0\0'\2\1\0B\0\2\0029\0\2\0004\2\0\0B\0\2\0016\0\0\0'\2\1\0B\0\2\0029\0\3\0B\0\1\1K\0\1\0\21setup_ts_grammar\nsetup\forgmode\frequire\0", "config", "orgmode")
 time([[Config for orgmode]], false)
+-- Config for: obsidian.nvim
+time([[Config for obsidian.nvim]], true)
+try_loadstring("\27LJ\2\n¨\1\0\0\5\0\a\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\5\0004\3\3\0005\4\3\0>\4\1\0035\4\4\0>\4\2\3=\3\6\2B\0\2\1K\0\1\0\15workspaces\1\0\0\1\0\2\tname\twork\tpath\18~/vaults/work\1\0\2\tname\rpersonal\tpath\22~/vaults/personal\nsetup\robsidian\frequire\0", "config", "obsidian.nvim")
+time([[Config for obsidian.nvim]], false)
 -- Config for: rose-pine
 time([[Config for rose-pine]], true)
 try_loadstring("\27LJ\2\n9\0\0\3\0\3\0\0056\0\0\0009\0\1\0'\2\2\0B\0\2\1K\0\1\0\26colorscheme rose-pine\bcmd\bvim\0", "config", "rose-pine")
 time([[Config for rose-pine]], false)
--- Config for: obsidian.nvim
-time([[Config for obsidian.nvim]], true)
-try_loadstring("\27LJ\2\n¨\1\0\0\5\0\a\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\5\0004\3\3\0005\4\3\0>\4\1\0035\4\4\0>\4\2\3=\3\6\2B\0\2\1K\0\1\0\15workspaces\1\0\0\1\0\2\tpath\18~/vaults/work\tname\twork\1\0\2\tpath\22~/vaults/personal\tname\rpersonal\nsetup\robsidian\frequire\0", "config", "obsidian.nvim")
-time([[Config for obsidian.nvim]], false)
+-- Config for: nvim-tree.lua
+time([[Config for nvim-tree.lua]], true)
+try_loadstring("\27LJ\2\n—\1\0\0\4\0\a\0\0146\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\0016\0\0\0'\2\3\0B\0\2\0029\0\2\0005\2\4\0005\3\5\0=\3\6\2B\0\2\1K\0\1\0\tview\1\0\1\nwidth\3(\1\0\2\18hijack_cursor\2\15update_cwd\2\14nvim-tree\nsetup\22nvim-web-devicons\frequire\0", "config", "nvim-tree.lua")
+time([[Config for nvim-tree.lua]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then
