@@ -11,7 +11,7 @@ HEIGHT=$(echo $RESOLUTION | cut -d 'x' -f2)
 ASPECT_RATIO=$(echo "scale=2; $WIDTH/$HEIGHT" | bc)
 
 # Set the wallpaper directory based on aspect ratio
-if (( $(echo "$ASPECT_RATIO >= 1.77" | bc -l) )); then
+if (( $(echo "$ASPECT_RATIO == 1.77" | bc -l) )); then
     WALLPAPER_DIR="$WALLPAPER_PATH/16:9"
 else
     WALLPAPER_DIR="$WALLPAPER_PATH/21:9"
