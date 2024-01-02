@@ -1,9 +1,9 @@
 return {
     -- Mason configuration for LSP server management
-
     {
         "williamboman/mason.nvim",
         lazy = false,  -- Adjust this based on your preference
+    -- Configuration for nvim-cmp
         config = function()
             require("mason").setup({
                 ui = {
@@ -41,8 +41,41 @@ return {
             require("luasnip.loaders.from_vscode").lazy_load()
         end,
     },
+    {
+        {'hrsh7th/cmp-path'},
+    },
+    {
+        {'hrsh7th/cmp-cmdline'},
+    },
+    {
+        "hrsh7th/cmp-buffer",
+        lazy = true,  -- Set to lazy load
+        after = "nvim-cmp",  -- Load after nvim-cmp
+        config = function()
+        end,
+    },
+    -- Configuration for cmp-cmdline (lazy loading)
+    {
+        "hrsh7th/cmp-cmdline",
+        lazy = true,  -- Lazy load cmp-cmdline
+        after = "nvim-cmp",  -- Ensure it loads after nvim-cmp
+        config = function()
+            local cmp = require('cmp')
+            -- Command line mode setup for ':'
+            cmp.setup.cmdline(':', {
+                sources = cmp.config.sources({
+                    { name = 'cmdline' }
+                })
+            })
 
-    -- Configuration for nvim-cmp
+            -- Optionally, for search mode '/'
+            cmp.setup.cmdline('/', {
+                sources = cmp.config.sources({
+                    { name = 'buffer' }
+                })
+            })
+        end,
+    },
     {
         "hrsh7th/nvim-cmp",
         lazy = false,
