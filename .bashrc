@@ -1,20 +1,18 @@
 #
 # ~/.bashrc
 #
-
 export TERM="tmux-256color"
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/OpenBLAS/lib:/usr/local/lib
-
-export PATH=$PATH:$HOME/scripts:$HOME/.cargo/bin:$HOME/.local/bin
+PATH=$PATH:$HOME/scripts:$HOME/.cargo/bin:$HOME/.local/bin
 
 source "$HOME/.config/alacritty/alacritty.bash"
 
 set -o vi
 
-VISUAL='nvim'
-EDITOR='nvim'
-TERMINAL=alacritty
+export VISUAL='nvim'
+export EDITOR='nvim'
+export TERMINAL=alacritty
 
 # Terminal colors using tput
 # Basic colors
@@ -68,8 +66,44 @@ parse_git_branch() {
 
 PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)\n╚═> '
 
-PATH="$HOME/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
+
+if [ "$(hostname)" = "pop-os" ]; then
+    cat << 'EOF'
+                }--O--{
+                  [^]
+                 /ooo\
+ ______________:/o   o\:______________
+|=|=|=|=|=|=|:A|":|||:"|A:|=|=|=|=|=|=|
+^""""""""""""""!::{o}::!""""""""""""""^
+                \     /
+                 \.../
+      ____       "---"       ____
+     |\/\/|=======|*|=======|\/\/|
+     :----"       /-\       "----:
+                 /ooo\
+                #|ooo|#
+                 \___/
+EOF
+else
+    cat << 'EOF'
+                -######-
+             ##+--..+##-+##
+          ###+....-++++. .-###
+        ##---++++++++++++-+--+##
+      ##-   .+++++--++++++    .##
+     #+-.    .++.    -++++.   .++#
+    #---+-..-++-      -++++--++-  +#
+   #-   -++++++++.    .+++######--+##
+  #-.  .++++++++++++++###########
+   #-..-+#########++--.-#
+              #-......+#
+              #+-++---##
+               +..  ..-#
+               +. . ...+#
+               +..   ...+
+              #+  . . ...+
+              #-.. .. ...-#
+               +#+++++++++
+
+EOF
+fi
