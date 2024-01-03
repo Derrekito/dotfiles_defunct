@@ -1,8 +1,9 @@
 [hostname]
 ssh_only = true
-format = '[$ssh_symbol](bold blue) [$hostname](bold red) '
+format = '[$ssh_symbol](bold blue)[$hostname](bold red) '
 trim_at = '.companyname.com'
 disabled = false
+ssh_symbol = ''
 
 [aws]
 format = '\[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
@@ -181,8 +182,9 @@ format = '\[[$symbol$workspace]($style)\]'
 [time]
 format = '\[[$time]($style)\]'
 
-#[username]
-#format = '\[[$user]($style)\]'
+[username]
+disabled = true
+format = '\[[$user]($style)\]'
 
 [vagrant]
 format = '\[[$symbol($version)]($style)\]'
