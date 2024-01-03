@@ -75,3 +75,5 @@ if [ "$(hostname)" = "pop-os" ]; then
 else
     print_mushroom.sh
 fi
+
+eval "$(starship init bash)"
