@@ -1,3 +1,5 @@
+format = '$all$sudo$character'
+
 [hostname]
 ssh_only = true
 format = '[$ssh_symbol](bold blue)[$hostname](bold red) '
@@ -13,6 +15,11 @@ format = '\[[$symbol($version)]($style)\]'
 
 [c]
 format = '\[[$symbol($version(-$name))]($style)\]'
+
+[character]
+format = "$symbol "
+success_symbol = '[❯](bold green)'
+error_symbol = "[✖︎](bold red)"
 
 [cmake]
 format = '\[[$symbol($version)]($style)\]'
@@ -171,7 +178,10 @@ format = '\[[$symbol($version)]($style)\]'
 format = '\[[$symbol$environment]($style)\]'
 
 [sudo]
-format = '\[[as $symbol]($style)\]'
+format = '$symbol '
+style = 'bold green'
+symbol = ''
+disabled = false
 
 [swift]
 format = '\[[$symbol($version)]($style)\]'
