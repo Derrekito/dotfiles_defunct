@@ -3,7 +3,6 @@ return {
     {
         "williamboman/mason.nvim",
         lazy = false,  -- Adjust this based on your preference
-    -- Configuration for nvim-cmp
         config = function()
             require("mason").setup({
                 ui = {
@@ -18,6 +17,10 @@ return {
     },
     {
         "williamboman/mason-lspconfig.nvim",
+        dependencies = {
+            "williamboman/mason.nvim",
+            "neovim/nvim-lspconfig",
+        },
         lazy = false,
         config = function()
             require("mason-lspconfig").setup({
@@ -25,6 +28,11 @@ return {
                     'clangd', 'rust_analyzer', 'bashls', 'lua_ls', 'marksman', 'pylsp', 'jsonls', 'texlab'
                 },
                 automatic_installation = true,
+                handlers = {
+                    function(server_name)
+                        require("lspconfig")[server_name].setup{}
+                    end,
+                }
             })
         end,
     },
@@ -44,6 +52,15 @@ return {
     -- nvim-lspconfig for setting up LSP servers
     {
         "neovim/nvim-lspconfig",
+        dependencies = {
+            "williamboman/mason.nvim",
+            "neovim/nvim-lspconfig",
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "hrsh7th/cmp-cmdline",
+            "hrsh7th/nvim-cmp",
+        },
         lazy = false,
         config = function()
             -- Key mappings for LSP functionalities

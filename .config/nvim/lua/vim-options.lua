@@ -26,6 +26,10 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "80"
 
+vim.o.scrolloff = 999
+
+vim.wo.wrap = false
+
 vim.g.mapleader = " "
 
 -- Enable clipboard integration
