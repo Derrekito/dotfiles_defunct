@@ -33,7 +33,7 @@ return {
             },
             highlight_groups = {
                 ColorColumn = { bg = 'love', blend = 1 },
-                CursorLine = { bg = 'foam', blend = 10 },
+                CursorLine = { bg = 'foam', blend = 1 },
                 StatusLine = { fg = 'love', bg = 'love', blend = 10 },
                 Search = { bg = 'gold', inherit = false },
             }

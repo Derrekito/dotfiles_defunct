@@ -10,6 +10,7 @@ end
 -- Call the function to apply settings
 setup_smart_indentation_wrapping()
 
+vim.wo.cursorline = true
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
