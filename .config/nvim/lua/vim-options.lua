@@ -1,3 +1,15 @@
+
+-- Function to setup smarter indentation with word wrapping
+local function setup_smart_indentation_wrapping()
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    vim.wo.breakindent = true
+    vim.wo.breakindentopt = "shift:2"
+end
+
+-- Call the function to apply settings
+setup_smart_indentation_wrapping()
+
 vim.opt.nu = true
 vim.opt.relativenumber = true
 

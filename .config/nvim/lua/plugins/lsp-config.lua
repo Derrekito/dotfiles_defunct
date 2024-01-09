@@ -30,7 +30,21 @@ return {
                 automatic_installation = true,
                 handlers = {
                     function(server_name)
-                        require("lspconfig")[server_name].setup{}
+                        if server_name == "lua_ls" then
+                            -- Special setup for lua_ls
+                            require("lspconfig")[server_name].setup{
+                                settings = {
+                                    Lua = {
+                                        diagnostics = {
+                                            globals = {'vim', 'bufnr'},
+                                        },
+                                    },
+                                },
+                            }
+                        else
+                            -- Generic setup for other servers
+                            require("lspconfig")[server_name].setup{}
+                        end
                     end,
                 }
             })
