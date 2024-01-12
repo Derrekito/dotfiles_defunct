@@ -69,6 +69,8 @@ alias ls='ls --color=auto'
 alias la='ls -aogh'
 alias ll='ls -1'
 alias tree="tree -a -I '.git'"
+alias vim='nvim'
+alias :q='exit'
 PS1='╔═╣${DIR_COLOR}\w/${RESET}  $(parse_git_branch)\n╚═> '
 
 if [ "$(hostname)" = "pop-os" ]; then
