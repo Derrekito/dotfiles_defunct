@@ -1,81 +1,109 @@
-local keymap = vim.keymap
+local setkey = vim.keymap.set
 
 vim.g.mapleader = " "
 
-keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+-- In visual mode, move the selected block of text one line up or down and
+-- reselect the block.
+setkey("v", "J", ":m '>+1<CR>gv=gv")
+setkey("v", "K", ":m '<-2<CR>gv=gv")
 
-keymap.set("i", "<C-c>", "<Esc>")
+setkey("i", "<C-c>", "<Esc>")
 
-keymap.set("n", "<leader>pv", vim.cmd.Ex)
-keymap.set("n", "J", "mzJ`z")
-keymap.set("n", "<C-d>", "<C-d>zz")
-keymap.set("n", "<C-u>", "<C-u>zz")
-keymap.set("n", "n", "nzzzv")
-keymap.set("n", "N", "Nzzzv")
+setkey("n", "<leader>pv", vim.cmd.Ex)
 
-keymap.set("n", "<leader>vwm", function()
-    require("vim-with-me").StartVimWithMe()
-end)
-keymap.set("n", "<leader>svwm", function()
-    require("vim-with-me").StopVimWithMe()
-end)
+-- Join lines without changing the cursor position.
+setkey("n", "J", "mzJ`z")
+
+-- Scroll down half a page and center the screen on the cursor.
+setkey("n", "<C-d>", "<C-d>zz")
+
+-- Scroll up half a page and center the screen on the cursor.
+setkey("n", "<C-u>", "<C-u>zz")
+
+-- Repeat the last search, center the screen on the found item, and reselect
+-- the last visual selection.
+setkey("n", "n", "nzzzv")
+
+-- Repeat the last search in the opposite direction, center the screen on the
+-- found item, and reselect the last visual selection.
+setkey("n", "N", "Nzzzv")
 
 -- In Visual mode, replace the selected text with the last yanked text.
 -- This binding uses the "black hole" register "_" to delete "d" the selected
 -- text without affecting the clipboard or other registers, then pastes "P" the
 -- previously yanked text in its place. Useful for quick text swaps.
-keymap.set("x", "<leader>p", [["_dP]])
+setkey("x", "<leader>p", [["_dP]])
 
 -- Map <leader>y to copy the current line (in Normal mode) or the selected text
--- (in Visual mode) directly to the system clipboard. This keymap utilizes the
+-- (in Visual mode) directly to the system clipboard. This vim.keymap utilizes the
 -- "+ register, which is Vim's way of accessing the system clipboard. It allows
 -- for easy copying of text from Vim to other applications outside of Vim.
-keymap.set({"n", "v"}, "<leader>y", [["+y]])
+setkey({ "n", "v" }, "<leader>y", [["+y]])
 
 -- In Normal mode, map <leader>Y to copy from the cursor position to the end of
 -- the line directly to the system clipboard. This uses the "+ register, which
 -- allows for interaction with the system clipboard, facilitating text transfer
 -- from Vim to external applications.
-keymap.set("n", "<leader>Y", [["+Y]])
+setkey("n", "<leader>Y", [["+Y]])
 
-keymap.set({"n", "v"}, "<leader>d", [["_d]])
+-- Map <leader>d in normal and visual modes to delete without affecting the clipboard.
+setkey({ "n", "v" }, "<leader>d", [["_d]])
 
+-- Disable the default functionality of 'Q' in normal mode.
+setkey("n", "Q", "<nop>")
 
-keymap.set("n", "Q", "<nop>")
-keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
-keymap.set("n", "<leader>f", vim.lsp.buf.format)
+-- Map <leader>f in normal mode to format the buffer using the configured LSP.
+setkey("n", "<leader>f", vim.lsp.buf.format)
 
-keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
-keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
-keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
-keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
+-- Map Ctrl+k in normal mode to go to the next item in the quickfix list and center it on screen.
+setkey("n", "<C-k>", "<cmd>cnext<CR>zz")
 
-keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
-keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+-- Map Ctrl+j in normal mode to go to the previous item in the quickfix list and center it on screen.
+setkey("n", "<C-j>", "<cmd>cprev<CR>zz")
 
-keymap.set("n", "<leader>vpp", "<cmd>e ~/.dotfiles/nvim/.config/nvim/lua/theprimeagen/packer.lua<CR>");
-keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>");
+-- Map <leader>k in normal mode to go to the next item in the location list and center it on screen.
+setkey("n", "<leader>k", "<cmd>lnext<CR>zz")
 
-keymap.set("n", "<leader><leader>", function()
+-- Map <leader>j in normal mode to go to the previous item in the location list and center it on screen.
+setkey("n", "<leader>j", "<cmd>lprev<CR>zz")
+
+-- substitute the word under the cursor throughout the file, case-insensitive
+setkey("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+-- substitute the word under the cursor throughout the file, case-sensitive
+setkey("n", "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/g<Left><Left><Left>]])
+-- make the current file executable using chmod +x
+setkey("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+
+-- source file
+setkey("n", "<leader><leader>", function()
     vim.cmd("so")
 end)
 
 -- Select All
-keymap.set("n", "<C-a>", "gg<S-v>G")
+setkey("n", "<C-a>", "gg<S-v>G")
 
 -- Split Window
-keymap.set("n", "<leader>-", ":split<Return>", opts)
-keymap.set("n", "<leader>|", ":vsplit<Return>", opts)
+setkey("n", "<leader>-", ":split<Return>", opts)
+setkey("n", "<leader>|", ":vsplit<Return>", opts)
 
--- Move Window
-keymap.set("n", "sh", "<C-w>h")
-keymap.set("n", "sk", "<C-w>k")
-keymap.set("n", "sj", "<C-w>j")
-keymap.set("n", "sl", "<C-w>l")
+-- Move to Window
+setkey("n", "sh", "<C-w>h")
+setkey("n", "sk", "<C-w>k")
+setkey("n", "sj", "<C-w>j")
+setkey("n", "sl", "<C-w>l")
+
+
+-- Move the current window to the far left of the screen.
+setkey("n", "Sh", "<C-w>H")
+-- Move the current window to the bottom of the screen.
+setkey("n", "Sj", "<C-w>J")
+-- Move the current window to the top of the screen.
+setkey("n", "Sk", "<C-w>K")
+-- Move the current window to the far right of the screen.
+setkey("n", "Sl", "<C-w>L")
 
 -- Resize Window
-keymap.set("n", "<C-left>", "<C-w><")
-keymap.set("n", "<C-right>", "<C-w>>")
-keymap.set("n", "<C-up>", "<C-w>+")
-keymap.set("n", "<C-down>", "<C-w>-")
+setkey("n", "<C-left>", "<C-w><")
+setkey("n", "<C-right>", "<C-w>>")
+setkey("n", "<C-up>", "<C-w>+")
+setkey("n", "<C-down>", "<C-w>-")
