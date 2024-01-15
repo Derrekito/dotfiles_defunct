@@ -14,7 +14,6 @@ vim.opt.rtp:prepend(lazypath)
 require("keymaps")
 require("lazy").setup("plugins")
 require("vim-options")
-require("type-anim")
 
 
 local augroup = vim.api.nvim_create_augroup
