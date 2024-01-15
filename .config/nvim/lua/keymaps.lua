@@ -75,10 +75,30 @@ setkey("n", "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/g<Left><Left><Left>]])
 setkey("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
 -- source file
-setkey("n", "<leader><leader>", function()
-    vim.cmd("so")
-end)
+--setkey("n", "<leader><leader>", function()
+--    vim.cmd("so")
+--end)
 
+local function setNetrwKeymap()
+    if vim.bo.filetype == "netrw" then
+        vim.keymap.set("n", "<leader><leader>", ":TypeAnim<CR>", { buffer = true })
+    else
+        -- source file
+        vim.keymap.set("n", "<leader><leader>", function()
+            vim.cmd("so")
+        end)
+    end
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "netrw",
+    callback = setNetrwKeymap
+})
+
+vim.api.nvim_create_autocmd("BufLeave", {
+    pattern = "*",
+    callback = setNetrwKeymap
+})
 -- Select All
 setkey("n", "<C-a>", "gg<S-v>G")
 
